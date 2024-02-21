@@ -119,6 +119,7 @@ class ImageCollection:
 
         fig = plt.figure()
         ax = fig.subplots(len(indexes), 2)
+        lab_or_hsv = 1  # Defaut is lab, 1 is HSV
 
         for image_counter in range(len(indexes)):
             # charge une image si nécessaire
@@ -160,3 +161,24 @@ class ImageCollection:
 
             # 2e histogramme
             # TODO L1.E4 afficher les autres histogrammes de Lab ou HSV dans la 2e colonne de subplots
+
+            if lab_or_hsv == 0:
+                # ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[0, start:end], s=3, c='C')
+                # ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[1, start:end], s=3, c='M')
+                # ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[2, start:end], s=3, c='Y')
+                # ax[image_counter, 1].set(xlabel='intensité', ylabel='comptes')
+                # ajouter le titre de la photo observée dans le titre de l'histogramme
+                image_name = self.image_list[indexes[image_counter]]
+                ax[image_counter, 1].set_title(f'histogramme LAB de {image_name}')
+            else:
+                # Ici on affiche en HSV
+                # En HSV, on a des valeurs de Hue, Saturation et Value (brightness of a color).
+                # https://programmingdesignsystems.com/color/color-models-and-color-spaces/index.html
+                ax[image_counter, 1].scatter(range(start, end), histvaluesHSV[0, start:end], s=3, c='Cyan')
+                ax[image_counter, 1].scatter(range(start, end), histvaluesHSV[1, start:end], s=3, c='Magenta')
+                ax[image_counter, 1].scatter(range(start, end), histvaluesHSV[2, start:end], s=3, c='Yellow')
+                #ax[image_counter, 1].scatter(range(start, end), histvaluesHSV[3, start:end], s=3, c='Black')
+                ax[image_counter, 1].set(xlabel='intensité', ylabel='comptes')
+                # ajouter le titre de la photo observée dans le titre de l'histogramme
+                image_name = self.image_list[indexes[image_counter]]
+                ax[image_counter, 1].set_title(f'histogramme HSV de {image_name}')
