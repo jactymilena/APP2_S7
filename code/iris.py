@@ -71,9 +71,9 @@ def main():
     # TODO L2.E3.1 Observez si différentes combinaisons de dimensions sont discriminantes
     data3D = data[:, 1:4]
     an.view3D(data3D, target_decode, 'dims 1 2 3')
-
-    # data3D = data[:, [0, 2 ,3]]
-    # an.view3D(data3D, target_decode, 'dims 0 2 3')
+    
+    data3D = data[:, [0,2,3]]
+    an.view3D(data3D, target_decode, 'dims 0 2 3')
 
     # TODO Problématique Ici on prend un raccourci avec PCA, mais dans la problématique on demande d'utiliser
     # les techniques vues au labo1
@@ -111,7 +111,7 @@ def main():
     validation_data = []
     training_target = target
     validation_target = []
-    training_data, validation_data, training_target, validation_target = ttsplit(data, target, test_size=0.2)
+    training_data, validation_data, training_target, validation_target = ttsplit(data, target, test_size=0.1)
 
     # Create neural network
     # TODO L2.E3.3  Tune the number and size of hidden layers

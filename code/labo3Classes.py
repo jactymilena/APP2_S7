@@ -33,8 +33,8 @@ def labo_APP2():
         # Décorrélation
         # TODO Labo L1.E3.5
         # data3classesDecorr = ClassificationData(il_manque_la_decorréleation_ici)
-        test = an.project_onto_new_basis(data3classes.dataLists, data3classes.vectpr[0])
-        data3classesDecorr = ClassificationData(test)
+        
+        data3classesDecorr = ClassificationData(an.project_onto_new_basis(data3classes.dataLists, data3classes.vectpr[0]))
         print('\n\n=========================\nDonnées décorrélées\n')
         data3classesDecorr.getStats(gen_print=True)
         data3classesDecorr.getBorders(view=True)

@@ -119,6 +119,7 @@ class ImageCollection:
 
         fig = plt.figure()
         ax = fig.subplots(len(indexes), 3)
+        ax = fig.subplots(len(indexes), 3)
 
         for image_counter in range(len(indexes)):
             # charge une image si nécessaire
@@ -157,21 +158,31 @@ class ImageCollection:
             # ajouter le titre de la photo observée dans le titre de l'histogramme
             image_name = self.image_list[indexes[image_counter]]
             ax[image_counter, 0].set_title(f'histogramme RGB de {image_name}')
+            ax[image_counter, 0].legend(['R', 'G', 'B'])
 
             # 2e histogramme
             # TODO L1.E4 afficher les autres histogrammes de Lab ou HSV dans la 2e colonne de subplots
-            ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[0, start:end], s=3, c='orange')
-            ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[1, start:end], s=3, c='black')
-            ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[2, start:end], s=3, c='brown')
+            
+            ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[0, start:end], s=3, c='Gray')
+            ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[1, start:end], s=3, c='green', alpha=0.7)
+            ax[image_counter, 1].scatter(range(start, end), histtvaluesLab[2, start:end], s=3, c='blue', alpha=0.7)
             ax[image_counter, 1].set(xlabel='intensité', ylabel='comptes')
             # ajouter le titre de la photo observée dans le titre de l'histogramme
             image_name = self.image_list[indexes[image_counter]]
-            ax[image_counter, 1].set_title(f'histogramme Lab de {image_name}')
-
-            ax[image_counter, 2].scatter(range(start, end), histvaluesHSV[0, start:end], s=3, c='cyan')
-            ax[image_counter, 2].scatter(range(start, end), histvaluesHSV[1, start:end], s=3, c='magenta')
-            ax[image_counter, 2].scatter(range(start, end), histvaluesHSV[2, start:end], s=3, c='yellow')
+            ax[image_counter, 1].set_title(f'histogramme LAB de {image_name}')
+            ax[image_counter, 1].legend(['l (Lightness)', 'a (g-r)', 'b (b-y)'])
+        
+            # Ici on affiche en HSV
+            # En HSV, on a des valeurs de Hue, Saturation et Value (brightness of a color).
+            # https://programmingdesignsystems.com/color/color-models-and-color-spaces/index.html
+            ax[image_counter, 2].scatter(range(start, end), histvaluesHSV[0, start:end], s=3, c='Brown')
+            ax[image_counter, 2].scatter(range(start, end), histvaluesHSV[1, start:end], s=3, c='Purple')
+            ax[image_counter, 2].scatter(range(start, end), histvaluesHSV[2, start:end], s=3, c='Yellow')
+            #ax[image_counter, 1].scatter(range(start, end), histvaluesHSV[3, start:end], s=3, c='Black')
             ax[image_counter, 2].set(xlabel='intensité', ylabel='comptes')
             # ajouter le titre de la photo observée dans le titre de l'histogramme
             image_name = self.image_list[indexes[image_counter]]
             ax[image_counter, 2].set_title(f'histogramme HSV de {image_name}')
+            ax[image_counter, 2].legend(['Hue', 'Sat', 'Bright'])
+
+             
