@@ -106,11 +106,13 @@ def calcModeleGaussien(data, message=''):
     :return: la moyenne, la matrice de covariance, les valeurs propres et les vecteurs propres de "data"
     """
     # TODO Labo L1.E2.2 Compléter le code avec les fonctions appropriées ici
-    moyenne = np.ones(np.asarray(data).shape[-1]) # pas_la_bonne_moyenne
-    matr_cov = np.identity(np.asarray(data).shape[-1]) # pas la bonne covariance
-    val_propres, vect_propres = [[1, 2], [[1,1],[-1, -1]]] # pas la bonne affaire
+    moyenne = np.mean(data, axis=0)
+    matr_cov =  np.cov(data, rowvar=False)
+    val_propres, vect_propres = np.linalg.eig(matr_cov)
+    
     if message:
         printModeleGaussien(moyenne, matr_cov, val_propres, vect_propres, message)
+
     return moyenne, matr_cov, val_propres, vect_propres
 
 
