@@ -91,16 +91,20 @@ def main():
     # de fonctions d'activations, etc.
     model = Sequential()
     # model.add(Dense(units=1, activation='linear', input_shape=(2,)))
-    model.add(Dense(units=1, activation='sigmoid', input_shape=(2,)))
-    model.add(Dense(units=1, activation='linear'))
+    model.add(Dense(units=2, activation='sigmoid', input_shape=(2,)))
+    model.add(Dense(units=2, activation='sigmoid', input_shape=(2,)))
+    model.add(Dense(units=2, activation='linear'))
     print(model.summary())
+
+    # sert a rien d'avoir du multi-couche linéaire dans un réseau de neurone.
+    # On doit avoir au moins un élément non-linéaire.
 
     # Define training parameters
     # TODO Comparez la performance de l'apprentissage avec une autre loss, learning rate, etc. :-)
-    model.compile(optimizer=SGD(learning_rate=0.5, momentum=0.9), loss='mse')
+    model.compile(optimizer=SGD(learning_rate=0.1, momentum=0.9), loss='mse')
 
     # Perform training
-    model.fit(data, target, batch_size=len(data), epochs=1000, shuffle=True, verbose=1)
+    model.fit(data, target, batch_size=len(data), epochs=2000, shuffle=True, verbose=1)
 
     an.plot_metrics(model)
 
