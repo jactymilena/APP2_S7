@@ -57,16 +57,27 @@ class ImageCollection:
         self.labels = []
         for i in image_list:
             if 'coast' in i:
+                # print(f"coast {j}")
                 self.labels.append(ImageCollection.imageLabels.coast)
             elif 'forest' in i:
+                # print(f"forest {j}")
                 self.labels.append(ImageCollection.imageLabels.forest)
             elif 'street' in i:
+                # print(f"street {j}")
                 self.labels.append(ImageCollection.imageLabels.street)
             else:
                 raise ValueError(i)
 
-    def get_samples(self, N):
-        return np.sort(random.sample(range(np.size(self.image_list, 0)), N))
+    def get_samples(self, N, random_samples=False, labels=None):
+        if random_samples:
+            return random.sample(range(np.size(self.image_list, 0)), N)
+        idx = 0
+        if labels is not None:
+            if labels == ImageCollection.imageLabels.forest:
+                idx = 360
+            elif labels == ImageCollection.imageLabels.street:
+                idx = 688
+        return [n for n in range(idx, idx + N)]
 
     def generateHistogram(self, image, n_bins=256):
         # Construction des histogrammes
@@ -83,7 +94,18 @@ class ImageCollection:
         Calcule les histogrammes RGB de toutes les images
         """
         # TODO L1.E4.6 S'inspirer de view_histogrammes et déménager le code pertinent ici
-        raise NotImplementedError()
+
+        for i in range(len(self.images)):
+            # charge une image si nécessaire
+            if self.all_images_loaded:
+                imageRGB = self.images[i]
+            else:
+                imageRGB = skiio.imread(
+                    self.image_folder + os.sep + self.image_list[i])
+                
+        return imageRGB
+
+        # raise NotImplementedError()
 
     def generateRepresentation(self):
         # produce a ClassificationData object usable by the classifiers
