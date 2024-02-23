@@ -90,14 +90,14 @@ def main():
     # TODO Comparez la performance de l'apprentissage avec un nombre différents de couches et de neurones
     # de fonctions d'activations, etc.
     model = Sequential()
-    # model.add(Dense(units=1, activation='linear', input_shape=(2,)))
-    model.add(Dense(units=1, activation='sigmoid', input_shape=(2,)))
-    model.add(Dense(units=1, activation='linear'))
+    model.add(Dense(units=2, activation='sigmoid', input_shape=(2,)))
+    model.add(Dense(units=2, activation='sigmoid', input_shape=(2,)))
+    model.add(Dense(units=2, activation='sigmoid'))
     print(model.summary())
 
     # Define training parameters
     # TODO Comparez la performance de l'apprentissage avec une autre loss, learning rate, etc. :-)
-    model.compile(optimizer=SGD(learning_rate=0.5, momentum=0.9), loss='mse')
+    model.compile(optimizer=SGD(learning_rate=0.7, momentum=0.9), loss='mse')
 
     # Perform training
     model.fit(data, target, batch_size=len(data), epochs=1000, shuffle=True, verbose=1)
@@ -109,7 +109,7 @@ def main():
 
     # Test model (loading from disk)
     model = load_model('saves'+os.sep+'xor.keras')
-    # Utilise le modèle pour prédire (calculer la sortie de "nouvelles" données
+    # Utilise le modèle pour prédire (calculer la sortie de "nouvelles" données)
     targetPred = model.predict(data)
 
     # Print the number of classification errors from the training data

@@ -72,6 +72,9 @@ def main():
     data3D = data[:, 1:4]
     an.view3D(data3D, target_decode, 'dims 1 2 3')
 
+    # data3D = data[:, [0, 2 ,3]]
+    # an.view3D(data3D, target_decode, 'dims 0 2 3')
+
     # TODO Problématique Ici on prend un raccourci avec PCA, mais dans la problématique on demande d'utiliser
     # les techniques vues au labo1
     pca3 = PCA(n_components=3)
@@ -108,24 +111,25 @@ def main():
     validation_data = []
     training_target = target
     validation_target = []
+    training_data, validation_data, training_target, validation_target = ttsplit(data, target, test_size=0.2)
 
     # Create neural network
     # TODO L2.E3.3  Tune the number and size of hidden layers
     model = Sequential()
-    model.add(Dense(units=3, activation='linear',
+    model.add(Dense(units=10, activation='linear',
                     input_shape=(data.shape[-1],)))
     model.add(Dense(units=target.shape[-1], activation='linear'))
     print(model.summary())
 
     # Define training parameters
     # TODO L2.E3.3 Tune the training parameters
-    model.compile(optimizer=SGD(learning_rate=0.001, momentum=0.01), loss='mse')
+    model.compile(optimizer=SGD(learning_rate=0.5, momentum=0.1), loss='mse')
 
     # Perform training
-    callback_list = []  # TODO Labo: callbacks
+    callback_list = [K.callbacks.EarlyStopping(monitor='val_loss', patience=10)]  # TODO Labo: callbacks
     # TODO L2.E3.3  Tune the training hyperparameters
     model.fit(training_data, training_target, batch_size=len(data), verbose=0,
-              epochs=10, shuffle=True, callbacks=callback_list)  # TODO Labo: ajouter les arguments pour le validation set
+              epochs=100, shuffle=True, callbacks=callback_list, validation_data=(validation_data, validation_target))  # TODO Labo: ajouter les arguments pour le validation set
 
     # Save trained model to disk
     model.save('saves'+os.sep+'iris.keras')
