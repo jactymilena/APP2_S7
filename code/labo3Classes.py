@@ -27,7 +27,7 @@ def labo_APP2():
         # Figure avec les ellipses et les frontières
         data3classes.getBorders(view=True)
         # exemple d'une densité de probabilité arbitraire pour 1 classe
-        an.creer_hist2D(data3classes.dataLists[0], 'C1', view=True)
+        # an.creer_hist2D(data3classes.dataLists[0], 'C1', view=True)
 
     if True:
         # Décorrélation
@@ -42,17 +42,17 @@ def labo_APP2():
     if True: # TODO Labo L2.E4
         # Exemple de RN
         n_neurons = 2
-        n_layers = 1
+        n_layers = 2
         nn1 = classifiers.NNClassify_APP2(data2train=data3classes, data2test=data3classes,
                                           n_layers=n_layers, n_neurons=n_neurons, innerActivation='tanh',
                                           outputActivation='softmax', optimizer=Adam(), loss='binary_crossentropy',
                                           metrics=['accuracy'],
-                                          callback_list=[],     # TODO à compléter L2.E4
+                                          callback_list=[K.callbacks.EarlyStopping(monitor='val_loss', patience=10)],     # TODO à compléter L2.E4
                                           experiment_title='NN Simple',
-                                          n_epochs = 10, savename='3classes',
+                                          n_epochs=100, savename='3classes',
                                           ndonnees_random=5000, gen_output=True, view=True)
-
-    if True:  # TODO L3.E2
+    
+    if False:  # TODO L3.E2
         # Exemples de ppv avec ou sans k-moy
         # 1-PPV avec comme représentants de classes l'ensemble des points déjà classés
         ppv1 = classifiers.PPVClassify_APP2(data2train=data3classes, n_neighbors=1,
@@ -65,7 +65,7 @@ def labo_APP2():
                                                useKmean=True, n_representants=1,
                                                gen_output=True, view=True)
 
-    if True:  # TODO L3.E3
+    if False:  # TODO L3.E3
         # Exemple de classification bayésienne
         apriori = [1/3, 1/3, 1/3]
         cost = [[0, 1, 1], [1, 0, 1], [1, 1, 0]]

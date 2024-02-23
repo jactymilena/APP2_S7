@@ -119,6 +119,7 @@ class ImageCollection:
 
         fig = plt.figure()
         ax = fig.subplots(len(indexes), 3)
+        ax = fig.subplots(len(indexes), 3)
 
         for image_counter in range(len(indexes)):
             # charge une image si nécessaire

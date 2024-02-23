@@ -106,6 +106,10 @@ def calcModeleGaussien(data, message=''):
     :return: la moyenne, la matrice de covariance, les valeurs propres et les vecteurs propres de "data"
     """
     # TODO Labo L1.E2.2 Compléter le code avec les fonctions appropriées ici
+    moyenne = np.mean(data, axis=0)
+    matr_cov =  np.cov(data, rowvar=False)
+    val_propres, vect_propres = np.linalg.eig(matr_cov)
+    
     # moyenne = np.ones(np.asarray(data).shape[-1]) # pas_la_bonne_moyenne
     moyenne = np.mean(np.asarray(data), axis=0)
     #matr_cov = [[2,1,0],[1,2,0],[0,0,7]]
@@ -116,6 +120,7 @@ def calcModeleGaussien(data, message=''):
     val_propres, vect_propres = np.linalg.eig(matr_cov)
     if message:
         printModeleGaussien(moyenne, matr_cov, val_propres, vect_propres, message)
+
     return moyenne, matr_cov, val_propres, vect_propres
 
 
@@ -248,12 +253,18 @@ def project_onto_new_basis(data, basis):
     dims = np.asarray(data).shape
     assert dims[-1] == len(basis)
     projected = np.zeros(np.asarray(data).shape)
+
+    # projected = np.dot(data, basis)
+    # projected = np.matmul(data, basis)
     #print(projected)
     for i in range(dims[0]):  # dims[0] = n_classes
         tempdata = data[i]
         # TODO Labo L1.E2.5 Remplacer l'opération bidon par la bonne projection ici
         # projected[i] = ??
         projected[i] = np.matmul(tempdata, basis)
+        projected[i] = np.matmul(tempdata, basis)
+
+    # print(f'Projected data: {projected}')     
     return projected
 
 

@@ -113,7 +113,7 @@ def main():
 
     # Test model (loading from disk)
     model = load_model('saves'+os.sep+'xor.keras')
-    # Utilise le modèle pour prédire (calculer la sortie de "nouvelles" données
+    # Utilise le modèle pour prédire (calculer la sortie de "nouvelles" données)
     targetPred = model.predict(data)
 
     # Print the number of classification errors from the training data
