@@ -69,14 +69,22 @@ class ImageCollection:
                 raise ValueError(i)
 
     def get_samples(self, N, random_samples=False, labels=None):
-        if random_samples:
-            return random.sample(range(np.size(self.image_list, 0)), N)
         idx = 0
+        idx2 = N
         if labels is not None:
+            if labels == ImageCollection.imageLabels.coast:
+                idx = 0
+                idx2 = 359
             if labels == ImageCollection.imageLabels.forest:
                 idx = 360
+                idx2 = 687
             elif labels == ImageCollection.imageLabels.street:
                 idx = 688
+                idx2 = 979
+
+        if random_samples:
+            return random.sample([n for n in range(idx, idx2)], N)
+        
         return [n for n in range(idx, idx + N)]
 
     def generateHistogram(self, image, n_bins=256):

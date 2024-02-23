@@ -17,7 +17,7 @@ def problematique_APP2():
         # TODO L1.E4.3 à L1.E4.5
         # Analyser quelques images pour développer des pistes pour le choix de la représentation
         N = 6
-        im_list = images.get_samples(N, random_samples=False, labels=ImageCollection.imageLabels.forest)
+        im_list = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.coast)
         print(im_list)
         images.images_display(im_list)
         images.view_histogrammes(im_list)
