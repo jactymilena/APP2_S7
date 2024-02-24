@@ -96,24 +96,138 @@ class ImageCollection:
             for j in range(n_channels):
                 pixel_values[j, i] = np.count_nonzero(image[:, :, j] == i)
         return pixel_values
+    
+    def get_color_quantity(self, image, color_index):
+        """
+        Retourne la quantité de couleur pour chaque canal
+        """
+        green_col = image[:, :, color_index]
+        g = 0
+        for j in range(256):
+            for k in range(256):
+                g += green_col[j, k]
+        return g
+
+
+    def generateHSVHistograms(self):
+        """
+        Calcule les histogrammes HSV de toutes les images
+        """
+        hue_qty = []
+        saturation_qty = []
+        brightness_qty = []
+        n_bins = 256
+        for i in range(len(self.image_list)):
+            # charge une image si nécessaire
+            if self.all_images_loaded:
+                imageRGB = self.image_list[i]
+            else:
+                imageRGB = skiio.imread(
+                    self.image_folder + os.sep + self.image_list[i])
+                
+            imageHSV = skic.rgb2hsv(imageRGB)
+            imageHSV = np.round(imageHSV * (n_bins - 1))
+
+            print(f"Started Image {i} : {self.image_list[i]}") 
+            hue_qty.append(self.get_color_quantity(imageHSV, 0))
+            saturation_qty.append(self.get_color_quantity(imageHSV, 1))
+            brightness_qty.append(self.get_color_quantity(imageHSV, 2))
+            print(f"Finished Image {i} : {self.image_list[i]}") 
+        
+        fig = plt.figure()
+        ax = fig.subplots(3)
+
+        # Hue Histogram
+        self.plot_histogram(ax, 'histogramme Hue', hue_qty, 0, 'red')
+        # Saturation Histogram
+        self.plot_histogram(ax, 'histogramme Saturation', saturation_qty, 1, 'green')
+        # Brightness Histogram
+        self.plot_histogram(ax, 'histogramme Brightness', brightness_qty, 2, 'blue')
+
+        fig.show()
+
+
+    def generateLABHistograms(self):
+        """
+        Calcule les histogrammes Lab de toutes les images
+        """
+        hue_qty = []
+        saturation_qty = []
+        brightness_qty = []
+        n_bins = 256
+        for i in range(len(self.image_list)):
+            # charge une image si nécessaire
+            if self.all_images_loaded:
+                imageRGB = self.image_list[i]
+            else:
+                imageRGB = skiio.imread(
+                    self.image_folder + os.sep + self.image_list[i])
+                
+            imageLAB = skic.rgb2hsv(imageRGB)
+            imageLAB = an.rescaleHistLab(imageLAB, n_bins)
+
+            print(f"Started Image {i} : {self.image_list[i]}") 
+            hue_qty.append(self.get_color_quantity(imageLAB, 0))
+            saturation_qty.append(self.get_color_quantity(imageLAB, 1))
+            brightness_qty.append(self.get_color_quantity(imageLAB, 2))
+            print(f"Finished Image {i} : {self.image_list[i]}") 
+        
+        fig = plt.figure()
+        ax = fig.subplots(3)
+
+        # Hue Histogram
+        self.plot_histogram(ax, 'histogramme L', hue_qty, 0, 'red')
+        # Saturation Histogram
+        self.plot_histogram(ax, 'histogramme A', saturation_qty, 1, 'green')
+        # Brightness Histogram
+        self.plot_histogram(ax, 'histogramme B', brightness_qty, 2, 'blue')
+
+        fig.show()
+
+
+    def plot_histogram(self, ax, title, qty_array, plt_index, color):
+        """
+        Affiche l'histogramme
+        """
+        ax[plt_index].scatter(range(len(self.image_list)), qty_array, s=3, c=color)
+        ax[plt_index].set(xlabel='# image', ylabel='intensity')
+        ax[plt_index].set_title(title)
+        
 
     def generateRGBHistograms(self):
         """
         Calcule les histogrammes RGB de toutes les images
         """
         # TODO L1.E4.6 S'inspirer de view_histogrammes et déménager le code pertinent ici
-
-        for i in range(len(self.images)):
+        red_qty = []
+        green_qty = []
+        blue_qty = []
+        for i in range(len(self.image_list)):
             # charge une image si nécessaire
             if self.all_images_loaded:
-                imageRGB = self.images[i]
+                imageRGB = self.image_list[i]
             else:
                 imageRGB = skiio.imread(
                     self.image_folder + os.sep + self.image_list[i])
-                
-        return imageRGB
+            
+            print(f"Started Image {i} : {self.image_list[i]}") 
+            red_qty.append(self.get_color_quantity(imageRGB, 0))
+            green_qty.append(self.get_color_quantity(imageRGB, 1))
+            blue_qty.append(self.get_color_quantity(imageRGB, 2))
+            print(f"Finished Image {i} : {self.image_list[i]}") 
 
-        # raise NotImplementedError()
+        fig = plt.figure()
+        ax = fig.subplots(3)
+
+        # Red Histogram
+        self.plot_histogram(ax, 'histogramme RED', red_qty, 0, 'red')
+        # Green Histogram
+        self.plot_histogram(ax, 'histogramme GREEN', green_qty, 1, 'green')
+        # Blue Histogram
+        self.plot_histogram(ax, 'histogramme BLUE', blue_qty, 2, 'blue')
+
+        fig.show()
+                
 
     def generateRepresentation(self):
         # produce a ClassificationData object usable by the classifiers
@@ -148,7 +262,6 @@ class ImageCollection:
             indexes = [indexes]
 
         fig = plt.figure()
-        ax = fig.subplots(len(indexes), 3)
         ax = fig.subplots(len(indexes), 3)
 
         for image_counter in range(len(indexes)):
