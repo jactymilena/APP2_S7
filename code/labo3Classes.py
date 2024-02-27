@@ -58,6 +58,14 @@ def labo_APP2():
         ppv1 = classifiers.PPVClassify_APP2(data2train=data3classes, n_neighbors=1,
                                             experiment_title='1-PPV avec données orig comme représentants',
                                             gen_output=True, view=True)
+        
+        # Exemples de ppv avec ou sans k-moy
+        # 5-PPV avec comme représentants de classes l'ensemble des points déjà classés
+        ppv5 = classifiers.PPVClassify_APP2(data2train=data3classes, n_neighbors=5,
+                                            experiment_title='5-PPV avec données orig comme représentants',
+                                            gen_output=True, view=True)
+
+
         # 1-mean sur chacune des classes
         # suivi d'un 1-PPV avec ces nouveaux représentants de classes
         ppv1km1 = classifiers.PPVClassify_APP2(data2train=data3classes, data2test=data3classes, n_neighbors=1,
