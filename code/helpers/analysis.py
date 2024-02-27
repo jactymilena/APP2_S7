@@ -518,7 +518,8 @@ def viewEllipse(data, ax, scale=1, facecolor='none', edgecolor='red', **kwargs):
 
     # TODO L3.E1.1 Remplacer les valeurs bidons par les bons paramètres à partir des stats ici
     # tous les 1 sont suspects
-    ellipse = Ellipse(moy, width=2 * np.sqrt(lambdas[0]) * scale, height=2 * np.sqrt(lambdas[1]) * scale,
+    centre = moy
+    ellipse = Ellipse(centre, width=2 * np.sqrt(lambdas[0]) * scale, height=2 * np.sqrt(lambdas[1]) * scale,
                       angle=theta, facecolor=facecolor,
                       edgecolor=edgecolor, linewidth=2, **kwargs)
     return ax.add_patch(ellipse)
