@@ -379,11 +379,12 @@ def splitDataNN(n_classes, data, labels, train_fraction=0.8):
     return shuffledTrainData, shuffledTrainLabels, shuffledValidData, shuffledValidLabels
 
 
-def view3D(data3D, targets, title):
+def view3D(data3D, targets, title, axes_names=['First component','Second component','Third component']):
     """
     Génère un graphique 3D de classes
     :param data: tableau, les 3 colonnes sont les données x, y, z
     :param target: sert à distinguer les classes, expect un encodage one-hot
+    :param axes_names: liste, sert à donner les noms aux axes (défaut est "First, Second,Third")
     """
     colors = np.array([[1.0, 0.0, 0.0],  # Red
                        [0.0, 1.0, 0.0],  # Green
@@ -394,9 +395,9 @@ def view3D(data3D, targets, title):
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(data3D[:, 0], data3D[:, 1], data3D[:, 2], s=10.0, c=c, marker='x')
     ax.set_title(title)
-    ax.set_xlabel('First component')
-    ax.set_ylabel('Second component')
-    ax.set_zlabel('Third component')
+    ax.set_xlabel(axes_names[0])
+    ax.set_ylabel(axes_names[1])
+    ax.set_zlabel(axes_names[2])
     fig.tight_layout()
 
 
