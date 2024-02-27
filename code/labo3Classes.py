@@ -39,7 +39,7 @@ def labo_APP2():
         data3classesDecorr.getStats(gen_print=True)
         data3classesDecorr.getBorders(view=True)
 
-    if True: # TODO Labo L2.E4
+    if False: # TODO Labo L2.E4
         # Exemple de RN
         n_neurons = 20
         n_layers = 10
