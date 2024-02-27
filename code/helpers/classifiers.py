@@ -207,7 +207,7 @@ class PPVClassifier:
         # TODO L2.E3.1 Compléter la logique pour utiliser la librairie ici
         # le 1 est suspect et il manque des arguments
         self.n_classes, _, self.representationDimensions = np.asarray(data2train.dataLists).shape
-        self.kNN = KNN(1)  # minkowski correspond à distance euclidienne lorsque le paramètre p = 2
+        self.kNN = KNN(n_neighbors)  # minkowski correspond à distance euclidienne lorsque le paramètre p = 2
         # Exécute un clustering pour calculer les représentants de classe si demandés
         if useKmean:
             assert n_represantants >= n_neighbors
@@ -279,7 +279,7 @@ class KMeanAlgo:
         for i in range(self.n_classes):  # itère sur l'ensemble des classes
             # TODO L2.E3.3 compléter la logique pour utiliser la librairie ici
             # encore une fois le 1 est suspect
-            self.kmeans_on_each_class.append(KM(1, n_init='auto'))
+            self.kmeans_on_each_class.append(KM(n_representants, n_init='auto'))
             self.kmeans_on_each_class[i].fit(np.array(data2train.dataLists[i]))
             self.cluster_centers.append(self.kmeans_on_each_class[i].cluster_centers_)
             self.cluster_labels[range(n_representants * i, n_representants * (i + 1))] = \
