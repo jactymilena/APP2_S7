@@ -303,6 +303,11 @@ class ImageCollection:
             ax[image_counter, 0].set_title(f'histogramme RGB de {image_name}')
             ax[image_counter, 0].legend(['R', 'G', 'B'])
 
+            #Test de vue en 3D
+            an.view3D(imageRGB, [1], f'RGB de {image_name}', ["Red", "Green", "Blue"])
+            
+            
+
             # 2e histogramme
             # TODO L1.E4 afficher les autres histogrammes de Lab ou HSV dans la 2e colonne de subplots
             
