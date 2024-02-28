@@ -316,13 +316,11 @@ class ImageCollection:
     def hough_transform_straight_line(self):
 
         images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
-        #images = ['coast_art487.jpg','coast_bea9.jpg']
         for img_name in images:
             img = skiio.imread(self.image_folder + os.sep + img_name)
 
             # Turn image to grayscale.
             gray_img = skic.rgb2gray(img)
-            #gray_img = data.camera()
             # Edge filter an image using the Canny algorithm.
             edges = canny(gray_img, sigma=0.75, low_threshold=0.1, high_threshold=0.3)
             # Return lines from a progressive probabilistic line Hough transform.
