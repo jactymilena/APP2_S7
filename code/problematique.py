@@ -37,7 +37,8 @@ def problematique_APP2():
         im_list_street = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.street)
         images.generateHSVHistograms(im_list_street)
 
-    # images.edge_detection()
+    #images.edge_detection()
+    images.hough_transform_straight_line()
 
     images.generateRepresentation()
     plt.show()
