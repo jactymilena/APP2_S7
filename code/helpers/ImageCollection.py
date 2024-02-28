@@ -70,7 +70,7 @@ class ImageCollection:
 
     def get_samples(self, N, random_samples=False, labels=None):
         idx = 0
-        idx2 = N
+        idx2 = 979
         if labels is not None:
             if labels == ImageCollection.imageLabels.coast:
                 idx = 0
