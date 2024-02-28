@@ -124,7 +124,7 @@ class BayesClassifier:
     """
     Classificateur de Bayes
     Train() est intégré dans le constructeur, i.e. le constructeur calcule les modèles directement
-    Predict est incomplet (ne tient pas compte du coût et des a priori
+    Predict est incomplet (ne tient pas compte du coût et des a priori)
     """
     def __init__(self, data2trainLists, probabilitydensityType=GaussianProbDensity, apriori=None, costs=None):
         """

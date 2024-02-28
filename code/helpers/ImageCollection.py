@@ -24,6 +24,8 @@ from enum import IntEnum, auto
 from skimage import color as skic
 from skimage import io as skiio
 
+from skimage.filters import sobel
+
 import helpers.analysis as an
 
 
@@ -35,6 +37,7 @@ class ImageCollection:
         coast = auto()
         forest = auto()
         street = auto()
+
 
     def __init__(self, load_all=False):
         # liste de toutes les images
@@ -68,6 +71,7 @@ class ImageCollection:
             else:
                 raise ValueError(i)
 
+
     def get_samples(self, N, random_samples=False, labels=None):
         idx = 0
         idx2 = 979
@@ -87,6 +91,7 @@ class ImageCollection:
         
         return [n for n in range(idx, idx + N)]
 
+
     def generateHistogram(self, image, n_bins=256):
         # Construction des histogrammes
         # 1 histogram per color channel
@@ -97,6 +102,7 @@ class ImageCollection:
                 pixel_values[j, i] = np.count_nonzero(image[:, :, j] == i)
         return pixel_values
     
+
     def get_color_quantity(self, image, color_index):
         """
         Retourne la quantité de couleur pour chaque canal
@@ -109,15 +115,18 @@ class ImageCollection:
         return g
 
 
-    def generateHSVHistograms(self):
+    def generateHSVHistograms(self, im_list):
         """
         Calcule les histogrammes HSV de toutes les images
         """
-        hue_qty = []
-        saturation_qty = []
-        brightness_qty = []
         n_bins = 256
-        for i in range(len(self.image_list)):
+
+        fig = plt.figure()
+        ax = fig.subplots(len(im_list), 2)
+
+        # for i in range(len(self.image_list)):
+        for j, i in enumerate(im_list):
+        
             # charge une image si nécessaire
             if self.all_images_loaded:
                 imageRGB = self.image_list[i]
@@ -128,23 +137,16 @@ class ImageCollection:
             imageHSV = skic.rgb2hsv(imageRGB)
             imageHSV = np.round(imageHSV * (n_bins - 1))
 
-            print(f"Started Image {i} : {self.image_list[i]}") 
-            hue_qty.append(self.get_color_quantity(imageHSV, 0))
-            saturation_qty.append(self.get_color_quantity(imageHSV, 1))
-            brightness_qty.append(self.get_color_quantity(imageHSV, 2))
-            print(f"Finished Image {i} : {self.image_list[i]}") 
-        
-        fig = plt.figure()
-        ax = fig.subplots(3)
+            histvaluesHSV = self.generateHistogram(imageHSV)
 
-        # Hue Histogram
-        self.plot_histogram(ax, 'histogramme Hue', hue_qty, 0, 'red')
-        # Saturation Histogram
-        self.plot_histogram(ax, 'histogramme Saturation', saturation_qty, 1, 'green')
-        # Brightness Histogram
-        self.plot_histogram(ax, 'histogramme Brightness', brightness_qty, 2, 'blue')
+            # plot imae
+            ax[j, 0].imshow(imageRGB)
+            # scatter hue values
+            ax[j, 1].scatter(range(n_bins), histvaluesHSV[0], s=3, c='magenta')
 
         fig.show()
+
+    
 
 
     def generateLABHistograms(self):
@@ -189,12 +191,19 @@ class ImageCollection:
         """
         Affiche l'histogramme
         """
-        ax[plt_index].scatter(range(len(self.image_list)), qty_array, s=3, c=color)
+        ax[plt_index].scatter(range(len(qty_array)), qty_array, s=3, c=color)
         ax[plt_index].set(xlabel='# image', ylabel='intensity')
         ax[plt_index].set_title(title)
-        
+    
 
-    def generateRGBHistograms(self):
+    def get_variance(self, image, index):
+        """
+        Retourne la variance de l'image
+        """
+        return np.var(image[:, :, index])
+
+
+    def generateRGBHistograms(self,im_list):
         """
         Calcule les histogrammes RGB de toutes les images
         """
@@ -202,6 +211,7 @@ class ImageCollection:
         red_qty = []
         green_qty = []
         blue_qty = []
+        # for i in im_list:
         for i in range(len(self.image_list)):
             # charge une image si nécessaire
             if self.all_images_loaded:
@@ -211,20 +221,39 @@ class ImageCollection:
                     self.image_folder + os.sep + self.image_list[i])
             
             print(f"Started Image {i} : {self.image_list[i]}") 
-            red_qty.append(self.get_color_quantity(imageRGB, 0))
-            green_qty.append(self.get_color_quantity(imageRGB, 1))
-            blue_qty.append(self.get_color_quantity(imageRGB, 2))
+            # red_qty.append(self.get_color_quantity(imageRGB, 0))
+            # green_qty.append(self.get_color_quantity(imageRGB, 1))
+            # blue_qty.append(self.get_color_quantity(imageRGB, 2))
+
+            red_qty.append(self.get_variance(imageRGB, 0))
+            green_qty.append(self.get_variance(imageRGB, 1))
+            blue_qty.append(self.get_variance(imageRGB, 2))
+
+            # print(f"Variance Red: {self.get_variance(imageRGB, 0)}")
+            # print(f"Variance Green: {self.get_variance(imageRGB, 1)}")
+            # print(f"Variance Blue: {self.get_variance(imageRGB, 2)}")
+
             print(f"Finished Image {i} : {self.image_list[i]}") 
 
+
+
         fig = plt.figure()
-        ax = fig.subplots(3)
+        ax = fig.subplots(3, 3)
 
         # Red Histogram
-        self.plot_histogram(ax, 'histogramme RED', red_qty, 0, 'red')
+        self.plot_histogram(ax, 'COAST - RED', red_qty[0:359], (0, 0), 'red')
+        self.plot_histogram(ax, 'FOREST - RED', red_qty[360:687], (1, 0), 'red')
+        self.plot_histogram(ax, 'STREET - RED', red_qty[688:979], (2, 0), 'red')
+
         # Green Histogram
-        self.plot_histogram(ax, 'histogramme GREEN', green_qty, 1, 'green')
+        self.plot_histogram(ax, 'COAST - GREEN', green_qty[0:359], (0, 1), 'green')
+        self.plot_histogram(ax, 'FOREST - GREEN', green_qty[360:687], (1, 1), 'green')
+        self.plot_histogram(ax, 'STREET - GREEN', green_qty[688:979], (2, 1), 'green')
+
         # Blue Histogram
-        self.plot_histogram(ax, 'histogramme BLUE', blue_qty, 2, 'blue')
+        self.plot_histogram(ax, 'COAST - BLUE', blue_qty[0:359], (0, 2), 'blue')
+        self.plot_histogram(ax, 'FOREST - BLUE', blue_qty[360:687], (1, 2), 'blue')
+        self.plot_histogram(ax, 'STREET - BLUE', blue_qty[688:979], (2, 2), 'blue')
 
         fig.show()
                 
@@ -233,6 +262,7 @@ class ImageCollection:
         # produce a ClassificationData object usable by the classifiers
         # TODO L1.E4.8: commencer l'analyse de la représentation choisie
         raise NotImplementedError()
+    
 
     def images_display(self, indexes):
         """
@@ -251,6 +281,33 @@ class ImageCollection:
             else:
                 im = skiio.imread(self.image_folder + os.sep + self.image_list[indexes[i]])
             ax2[i].imshow(im)
+
+    
+    def edge_detection(self):
+        # images = [ 'coast_cdmc838.jpg', 'coast_natu804.jpg', 'coast_sun34.jpg' ]
+        # images = ['coast_cdmc838.jpg' ,'coast_natu804.jpg', 'coast_sun34.jpg', 'forest_bost190.jpg', 'forest_for82.jpg', 'forest_land81.jpg', 'forest_land765.jpg', 'forest_land107.jpg', 'forest_nat717.jpg' , 'street_a232022.jpg', 'street_bost77.jpg', 'street_city42.jpg', 'street_par21.jpg', 'street_urb562.jpg', 'street_urban997.jpg']
+        images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
+
+        for img_name in images:
+            img = skiio.imread(self.image_folder + os.sep + img_name)
+
+            # Turn image to grayscale.
+            gray_img = skic.rgb2gray(img)
+            sobel_filtered_img = sobel(gray_img)
+
+            fig, ax = plt.subplots(ncols=2,nrows=1, figsize=(10,8), sharex=True, sharey=True)
+            ax = ax.ravel()
+            fig.tight_layout()
+            #Plot the original image
+            ax[0].imshow(gray_img, cmap=plt.cm.gray)
+            ax[0].set_title('Image en noir et blanc')
+            #Plot the Sobel filter applied image
+            ax[1].imshow(sobel_filtered_img, cmap=plt.cm.gray)
+            ax[1].set_title('Image avec filtre de Sobel')
+
+            for a in ax:
+                a.axis('off')
+
 
     def view_histogrammes(self, indexes):
         """
