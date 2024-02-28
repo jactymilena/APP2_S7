@@ -25,6 +25,11 @@ from skimage import color as skic
 from skimage import io as skiio
 
 from skimage.filters import sobel
+# Import for Hough
+from skimage.transform import probabilistic_hough_line
+from skimage.feature import canny
+
+
 
 import helpers.analysis as an
 
@@ -308,6 +313,50 @@ class ImageCollection:
             for a in ax:
                 a.axis('off')
 
+    def hough_transform_straight_line(self):
+
+        images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
+        #images = ['coast_art487.jpg','coast_bea9.jpg']
+        for img_name in images:
+            img = skiio.imread(self.image_folder + os.sep + img_name)
+
+            # Turn image to grayscale.
+            gray_img = skic.rgb2gray(img)
+            #gray_img = data.camera()
+            # Edge filter an image using the Canny algorithm.
+            edges = canny(gray_img, sigma=0.75, low_threshold=0.1, high_threshold=0.3)
+            # Return lines from a progressive probabilistic line Hough transform.
+            lines = probabilistic_hough_line(edges, threshold=5, line_length=35, line_gap=5)
+
+            # Generating figure
+            fig, ax = plt.subplots(ncols=3,nrows=1, figsize=(15,5), sharex=True, sharey=True)
+            ax = ax.ravel()
+
+            fig.tight_layout()
+            # Plot the original image
+            ax[0].imshow(gray_img, cmap=plt.cm.gray)
+            ax[0].set_title(f'{img_name} en noir et blanc')
+
+            ax[1].imshow(edges, cmap=plt.cm.gray)
+            ax[1].set_title('Canny edges')
+
+            # Plot des lignes détectées par la transformée de Hough probabiliste.
+            ax[2].imshow(edges * 0)
+            for line in lines:
+                p0, p1 = line
+                ax[2].plot((p0[0], p1[0]), (p0[1], p1[1]), 'r')  # 'r' pour rouge
+            ax[2].set_xlim((0, gray_img.shape[1]))
+            ax[2].set_ylim((gray_img.shape[0], 0))
+            ax[2].set_title('Transformée de Hough probabiliste')
+
+            for a in ax:
+                a.set_axis_off()
+            
+            plt.tight_layout()
+            
+
+    def hough_transform_circular_elliptical(self):
+        print("TODO")
 
     def view_histogrammes(self, indexes):
         """
