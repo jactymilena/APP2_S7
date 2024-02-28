@@ -10,7 +10,7 @@ from helpers.ImageCollection import ImageCollection
 
 #######################################
 def problematique_APP2():
-    images = ImageCollection()
+    images = ImageCollection(True)
     # Génère une liste de N images, les visualise et affiche leur histo de couleur
     # TODO: voir L1.E4 et problématique
     # if True:
@@ -37,9 +37,9 @@ def problematique_APP2():
         im_list_street = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.street)
         images.generateHSVHistograms(im_list_street)
 
-    images.edge_detection()
+    # images.edge_detection()
 
-    # images.generateRepresentation()
+    images.generateRepresentation()
     plt.show()
 
 

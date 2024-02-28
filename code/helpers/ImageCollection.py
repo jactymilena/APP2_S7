@@ -27,6 +27,7 @@ from skimage import io as skiio
 from skimage.filters import sobel
 
 import helpers.analysis as an
+from helpers.ClassificationData import ClassificationData
 
 
 class ImageCollection:
@@ -54,8 +55,9 @@ class ImageCollection:
         # Dimensions [980, 256, 256, 3]
         #            [Nombre image, hauteur, largeur, RGB]
         if load_all:
-            self.images = np.array([np.array(skiio.imread(image)) for image in self._path])
-            self.all_images_loaded = True
+            # self.images = np.array([np.array(skiio.imread(image)) for image in self._path])
+            # self.all_images_loaded = True
+            self.load_all_images()
 
         self.labels = []
         for i in image_list:
@@ -70,6 +72,14 @@ class ImageCollection:
                 self.labels.append(ImageCollection.imageLabels.street)
             else:
                 raise ValueError(i)
+
+
+    def load_all_images(self):
+        """
+        Charge toutes les images dans la liste
+        """
+        self.images = np.array([np.array(skiio.imread(image)) for image in self._path])
+        self.all_images_loaded = True
 
 
     def get_samples(self, N, random_samples=False, labels=None):
@@ -146,46 +156,6 @@ class ImageCollection:
 
         fig.show()
 
-    
-
-
-    def generateLABHistograms(self):
-        """
-        Calcule les histogrammes Lab de toutes les images
-        """
-        hue_qty = []
-        saturation_qty = []
-        brightness_qty = []
-        n_bins = 256
-        for i in range(len(self.image_list)):
-            # charge une image si nécessaire
-            if self.all_images_loaded:
-                imageRGB = self.image_list[i]
-            else:
-                imageRGB = skiio.imread(
-                    self.image_folder + os.sep + self.image_list[i])
-                
-            imageLAB = skic.rgb2hsv(imageRGB)
-            imageLAB = an.rescaleHistLab(imageLAB, n_bins)
-
-            print(f"Started Image {i} : {self.image_list[i]}") 
-            hue_qty.append(self.get_color_quantity(imageLAB, 0))
-            saturation_qty.append(self.get_color_quantity(imageLAB, 1))
-            brightness_qty.append(self.get_color_quantity(imageLAB, 2))
-            print(f"Finished Image {i} : {self.image_list[i]}") 
-        
-        fig = plt.figure()
-        ax = fig.subplots(3)
-
-        # Hue Histogram
-        self.plot_histogram(ax, 'histogramme L', hue_qty, 0, 'red')
-        # Saturation Histogram
-        self.plot_histogram(ax, 'histogramme A', saturation_qty, 1, 'green')
-        # Brightness Histogram
-        self.plot_histogram(ax, 'histogramme B', brightness_qty, 2, 'blue')
-
-        fig.show()
-
 
     def plot_histogram(self, ax, title, qty_array, plt_index, color):
         """
@@ -235,8 +205,6 @@ class ImageCollection:
 
             print(f"Finished Image {i} : {self.image_list[i]}") 
 
-
-
         fig = plt.figure()
         ax = fig.subplots(3, 3)
 
@@ -258,11 +226,37 @@ class ImageCollection:
         fig.show()
                 
 
+    def getHSVData(self):
+        """
+        Retourne les données HSV
+        """
+        n_bins = 256
+
+        if not self.all_images_loaded:
+            self.load_all_images()
+
+        data = []
+        for img in self.images:
+            imgHSV = skic.rgb2hsv(img)
+            imgHSV = skic.rgb2hsv(img)
+            imgHSV = np.round(imgHSV * (n_bins - 1))
+            data.append(imgHSV[0])
+
+        return np.array(data)
+
+
     def generateRepresentation(self):
         # produce a ClassificationData object usable by the classifiers
         # TODO L1.E4.8: commencer l'analyse de la représentation choisie
-        raise NotImplementedError()
-    
+        # hsv_data = self.getHSVData()
+        # print(hsv_data.shape)
+
+        hsv_data = self.getHSVData()
+        data = ClassificationData(hsv_data.T) 
+
+        # data.getStats(gen_print=True)
+        # data.getBorders(view=True)
+
 
     def images_display(self, indexes):
         """

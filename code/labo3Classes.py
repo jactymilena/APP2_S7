@@ -25,7 +25,7 @@ def labo_APP2():
         # Affiche les stats de base
         data3classes.getStats(gen_print=True)
         # Figure avec les ellipses et les frontières
-        data3classes.getBorders(view=True)
+        # data3classes.getBorders(view=True)
         # exemple d'une densité de probabilité arbitraire pour 1 classe
         # an.creer_hist2D(data3classes.dataLists[0], 'C1', view=True)
 
@@ -73,7 +73,7 @@ def labo_APP2():
                                                useKmean=True, n_representants=1,
                                                gen_output=True, view=True)
 
-    if False:  # TODO L3.E3
+    if True:  # TODO L3.E3
         # Exemple de classification bayésienne
         apriori = [1/3, 1/3, 1/3]
         cost = [[0, 1, 1], [1, 0, 1], [1, 1, 0]]

@@ -207,7 +207,7 @@ class PPVClassifier:
         # TODO L2.E3.1 Compléter la logique pour utiliser la librairie ici
         # le 1 est suspect et il manque des arguments
         self.n_classes, _, self.representationDimensions = np.asarray(data2train.dataLists).shape
-        self.kNN = KNN(n_neighbors)  # minkowski correspond à distance euclidienne lorsque le paramètre p = 2
+        self.kNN = KNN(n_neighbors, metric, p=2)  # minkowski correspond à distance euclidienne lorsque le paramètre p = 2
         # Exécute un clustering pour calculer les représentants de classe si demandés
         if useKmean:
             assert n_represantants >= n_neighbors
