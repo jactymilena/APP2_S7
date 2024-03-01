@@ -86,6 +86,24 @@ class ImageCollection:
         self.images = np.array([np.array(skiio.imread(image)) for image in self._path])
         self.all_images_loaded = True
 
+    
+    def get_images(self, idx0, idx1):
+        """
+        Charge images dans la liste de idx0 à idx1
+        """
+        return np.array([np.array(skiio.imread(image)) for image in self._path[idx0:idx1]])
+
+    
+    def load_images(self, N):
+        coast_images = self.get_images(0, 0 + N)
+        forest_images = self.get_images(360, 360 + N)
+        street_images = self.get_images(688, 688 + N)
+
+        # for images in [coast_images, forest_images, street_images]:
+        #     self.images.append(images)
+
+        self.images = np.concatenate((coast_images, forest_images, street_images))
+
 
     def get_samples(self, N, random_samples=False, labels=None):
         idx = 0
@@ -237,12 +255,33 @@ class ImageCollection:
         """
         n_bins = 256
 
-        if not self.all_images_loaded:
-            self.load_all_images()
+        self.load_images(6)
+
+        # data_coast = []
+        # data_forest = []
+        # data_street = []
+
+        # for img in self.images[0:6]:
+        #     imgHSV = skic.rgb2hsv(img)
+        #     imgHSV = np.round(imgHSV * (n_bins - 1))
+        #     data_coast.append(imgHSV[0])
+        
+        # for img in self.images[6:12]:
+        #     imgHSV = skic.rgb2hsv(img)
+        #     imgHSV = np.round(imgHSV * (n_bins - 1))
+        #     data_forest.append(imgHSV[0])
+        
+        # for img in self.images[12:18]:
+        #     imgHSV = skic.rgb2hsv(img)
+        #     imgHSV = np.round(imgHSV * (n_bins - 1))
+        #     data_street.append(imgHSV[0])
 
         data = []
+        # data.append(data_coast)
+        # data.append(data_forest)
+        # data.append(data_street)
+
         for img in self.images:
-            imgHSV = skic.rgb2hsv(img)
             imgHSV = skic.rgb2hsv(img)
             imgHSV = np.round(imgHSV * (n_bins - 1))
             data.append(imgHSV[0])
@@ -257,10 +296,10 @@ class ImageCollection:
         # print(hsv_data.shape)
 
         hsv_data = self.getHSVData()
-        data = ClassificationData(hsv_data.T) 
+        data = ClassificationData(hsv_data) 
 
-        # data.getStats(gen_print=True)
-        # data.getBorders(view=True)
+        data.getStats(gen_print=True)
+        data.getBorders(view=True)
 
 
     def images_display(self, indexes):
@@ -281,7 +320,7 @@ class ImageCollection:
                 im = skiio.imread(self.image_folder + os.sep + self.image_list[indexes[i]])
             ax2[i].imshow(im)
 
-    
+
     def edge_detection(self):
         # images = [ 'coast_cdmc838.jpg', 'coast_natu804.jpg', 'coast_sun34.jpg' ]
         # images = ['coast_cdmc838.jpg' ,'coast_natu804.jpg', 'coast_sun34.jpg', 'forest_bost190.jpg', 'forest_for82.jpg', 'forest_land81.jpg', 'forest_land765.jpg', 'forest_land107.jpg', 'forest_nat717.jpg' , 'street_a232022.jpg', 'street_bost77.jpg', 'street_city42.jpg', 'street_par21.jpg', 'street_urb562.jpg', 'street_urban997.jpg']
@@ -306,6 +345,7 @@ class ImageCollection:
 
             for a in ax:
                 a.axis('off')
+
 
     def hough_transform_straight_line(self):
 
