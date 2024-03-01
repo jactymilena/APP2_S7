@@ -29,7 +29,10 @@ from skimage.filters import sobel
 from skimage.transform import probabilistic_hough_line
 from skimage.feature import canny
 
+import helpers.classifiers as classifiers
 
+from keras.optimizers import Adam
+import keras as K
 
 import helpers.analysis as an
 from helpers.ClassificationData import ClassificationData
@@ -177,6 +180,10 @@ class ImageCollection:
             # scatter hue values
             ax[j, 1].scatter(range(n_bins), histvaluesHSV[0], s=3, c='magenta')
 
+            m1 = self.getMeanMaxValues(imageHSV)
+
+            print(f"Mean Max Values: {m1} for image {i} : {self.image_list[i]}")
+
         fig.show()
 
 
@@ -247,7 +254,28 @@ class ImageCollection:
         self.plot_histogram(ax, 'STREET - BLUE', blue_qty[688:979], (2, 2), 'blue')
 
         fig.show()
-                
+    
+
+    def getHuePeak(self, imageHSV):
+        """
+        Retourne le pic de du Hue
+        """
+        histvaluesHSV = self.generateHistogram(imageHSV)
+
+        return histvaluesHSV[0].max()
+
+
+    def getMeanMaxValues(self, imageHSV):
+        """
+        Retourne la moyenne des pics du Hue
+        """
+        imageHue = imageHSV[0]
+        # sort by y value
+        imageHue = np.sort(imageHue, axis=1)
+        hueVertical = imageHue[1]
+
+        return np.mean(hueVertical[-10:])
+
 
     def getHSVData(self):
         """
@@ -257,34 +285,32 @@ class ImageCollection:
 
         self.load_images(6)
 
-        # data_coast = []
-        # data_forest = []
-        # data_street = []
+        data_coast = []
+        data_forest = []
+        data_street = []
 
-        # for img in self.images[0:6]:
-        #     imgHSV = skic.rgb2hsv(img)
-        #     imgHSV = np.round(imgHSV * (n_bins - 1))
-        #     data_coast.append(imgHSV[0])
-        
-        # for img in self.images[6:12]:
-        #     imgHSV = skic.rgb2hsv(img)
-        #     imgHSV = np.round(imgHSV * (n_bins - 1))
-        #     data_forest.append(imgHSV[0])
-        
-        # for img in self.images[12:18]:
-        #     imgHSV = skic.rgb2hsv(img)
-        #     imgHSV = np.round(imgHSV * (n_bins - 1))
-        #     data_street.append(imgHSV[0])
+        for img in self.images[0:6]:
+            imgHSV = skic.rgb2hsv(img)
+            data_coast.append([0, self.getMeanMaxValues(imgHSV)])
 
-        data = []
-        # data.append(data_coast)
-        # data.append(data_forest)
-        # data.append(data_street)
+        for img in self.images[6:12]:
+            imgHSV = skic.rgb2hsv(img)
+            data_forest.append([0, self.getMeanMaxValues(imgHSV)])
 
-        for img in self.images:
+        for img in self.images[12:18]:
             imgHSV = skic.rgb2hsv(img)
             imgHSV = np.round(imgHSV * (n_bins - 1))
-            data.append(imgHSV[0])
+            data_street.append([0 ,self.getMeanMaxValues(imgHSV)])
+
+        data = [data_coast, data_forest, data_street]
+
+        # print(f"Data Coast shape: {data_coast.shape}")
+
+        # for img in self.images:
+        #     imgHSV = skic.rgb2hsv(img)
+        #     imgHSV = np.round(imgHSV * (n_bins - 1))
+        #     hue_peak = self.getHuePeak(imgHSV)
+        #     data.append(hue_peak)
 
         return np.array(data)
 
@@ -296,10 +322,28 @@ class ImageCollection:
         # print(hsv_data.shape)
 
         hsv_data = self.getHSVData()
-        data = ClassificationData(hsv_data) 
+        data = ClassificationData(hsv_data)
 
         data.getStats(gen_print=True)
-        data.getBorders(view=True)
+        # data.getBorders(view=True)
+
+        # d1 = hsv_data[0:2]
+        # d2 = hsv_data[3:5]
+        # d3 = hsv_data[6:8]
+        #
+        # data_train = ClassificationData(np.concatenate(d1, d2, d3))
+
+        # n_neurons = 20
+        # n_layers = 10
+        #
+        # nn1 = classifiers.NNClassify_APP2(data2train=data, data2test=data_train,
+        #                                   n_layers=n_layers, n_neurons=n_neurons, innerActivation='tanh',
+        #                                   outputActivation='softmax', optimizer=Adam(), loss='binary_crossentropy',
+        #                                   metrics=['accuracy'],
+        #                                   callback_list=[K.callbacks.EarlyStopping(monitor='val_loss', patience=10)],     # TODO à compléter L2.E4
+        #                                   experiment_title='NN Simple',
+        #                                   n_epochs=1000, savename='3classes',
+        #                                   ndonnees_random=5000, gen_output=True, view=True)
 
 
     def images_display(self, indexes):

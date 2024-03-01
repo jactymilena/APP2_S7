@@ -25,17 +25,17 @@ def problematique_APP2():
     # TODO L1.E4.6 à L1.E4.8
     # images.generateLABHistograms()
     # images.generateRGBHistograms(im_list)
-    if False:  
-        N = 6
+    # if True:
+    #     N = 6
 
-        im_list_forest = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.coast)
-        images.generateHSVHistograms(im_list_forest)
+        # im_list_coast = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.coast)
+        # images.generateHSVHistograms(im_list_coast)
 
-        im_list_coast = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.forest)
-        images.generateHSVHistograms(im_list_coast)
-
-        im_list_street = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.street)
-        images.generateHSVHistograms(im_list_street)
+        # im_list_forest = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.forest)
+        # images.generateHSVHistograms(im_list_forest)
+        #
+        # im_list_street = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.street)
+        # images.generateHSVHistograms(im_list_street)
 
     # images.edge_detection()
     # images.hough_transform_straight_line()
