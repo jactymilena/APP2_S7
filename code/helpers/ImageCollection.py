@@ -31,7 +31,10 @@ from skimage.transform import probabilistic_hough_line, hough_ellipse
 from skimage.feature import canny
 from skimage.draw import ellipse_perimeter
 
+import helpers.classifiers as classifiers
 
+from keras.optimizers import Adam
+import keras as K
 
 import helpers.analysis as an
 from helpers.ClassificationData import ClassificationData
@@ -87,6 +90,24 @@ class ImageCollection:
         """
         self.images = np.array([np.array(skiio.imread(image)) for image in self._path])
         self.all_images_loaded = True
+
+    
+    def get_images(self, idx0, idx1):
+        """
+        Charge images dans la liste de idx0 à idx1
+        """
+        return np.array([np.array(skiio.imread(image)) for image in self._path[idx0:idx1]])
+
+    
+    def load_images(self, N):
+        coast_images = self.get_images(0, 0 + N)
+        forest_images = self.get_images(360, 360 + N)
+        street_images = self.get_images(688, 688 + N)
+
+        # for images in [coast_images, forest_images, street_images]:
+        #     self.images.append(images)
+
+        self.images = np.concatenate((coast_images, forest_images, street_images))
 
 
     def get_samples(self, N, random_samples=False, labels=None):
@@ -161,6 +182,10 @@ class ImageCollection:
             # scatter hue values
             ax[j, 1].scatter(range(n_bins), histvaluesHSV[0], s=3, c='magenta')
 
+            m1 = self.getMeanMaxValues(imageHSV)
+
+            print(f"Mean Max Values: {m1} for image {i} : {self.image_list[i]}")
+
         fig.show()
 
 
@@ -231,7 +256,28 @@ class ImageCollection:
         self.plot_histogram(ax, 'STREET - BLUE', blue_qty[688:979], (2, 2), 'blue')
 
         fig.show()
-                
+    
+
+    def getHuePeak(self, imageHSV):
+        """
+        Retourne le pic de du Hue
+        """
+        histvaluesHSV = self.generateHistogram(imageHSV)
+
+        return histvaluesHSV[0].max()
+
+
+    def getMeanMaxValues(self, imageHSV):
+        """
+        Retourne la moyenne des pics du Hue
+        """
+        imageHue = imageHSV[0]
+        # sort by y value
+        imageHue = np.sort(imageHue, axis=1)
+        hueVertical = imageHue[1]
+
+        return np.mean(hueVertical[-10:])
+
 
     def getHSVData(self):
         """
@@ -239,15 +285,34 @@ class ImageCollection:
         """
         n_bins = 256
 
-        if not self.all_images_loaded:
-            self.load_all_images()
+        self.load_images(6)
 
-        data = []
-        for img in self.images:
+        data_coast = []
+        data_forest = []
+        data_street = []
+
+        for img in self.images[0:6]:
             imgHSV = skic.rgb2hsv(img)
+            data_coast.append([0, self.getMeanMaxValues(imgHSV)])
+
+        for img in self.images[6:12]:
+            imgHSV = skic.rgb2hsv(img)
+            data_forest.append([0, self.getMeanMaxValues(imgHSV)])
+
+        for img in self.images[12:18]:
             imgHSV = skic.rgb2hsv(img)
             imgHSV = np.round(imgHSV * (n_bins - 1))
-            data.append(imgHSV[0])
+            data_street.append([0 ,self.getMeanMaxValues(imgHSV)])
+
+        data = [data_coast, data_forest, data_street]
+
+        # print(f"Data Coast shape: {data_coast.shape}")
+
+        # for img in self.images:
+        #     imgHSV = skic.rgb2hsv(img)
+        #     imgHSV = np.round(imgHSV * (n_bins - 1))
+        #     hue_peak = self.getHuePeak(imgHSV)
+        #     data.append(hue_peak)
 
         return np.array(data)
 
@@ -259,10 +324,28 @@ class ImageCollection:
         # print(hsv_data.shape)
 
         hsv_data = self.getHSVData()
-        data = ClassificationData(hsv_data.T) 
+        data = ClassificationData(hsv_data)
 
-        # data.getStats(gen_print=True)
+        data.getStats(gen_print=True)
         # data.getBorders(view=True)
+
+        # d1 = hsv_data[0:2]
+        # d2 = hsv_data[3:5]
+        # d3 = hsv_data[6:8]
+        #
+        # data_train = ClassificationData(np.concatenate(d1, d2, d3))
+
+        # n_neurons = 20
+        # n_layers = 10
+        #
+        # nn1 = classifiers.NNClassify_APP2(data2train=data, data2test=data_train,
+        #                                   n_layers=n_layers, n_neurons=n_neurons, innerActivation='tanh',
+        #                                   outputActivation='softmax', optimizer=Adam(), loss='binary_crossentropy',
+        #                                   metrics=['accuracy'],
+        #                                   callback_list=[K.callbacks.EarlyStopping(monitor='val_loss', patience=10)],     # TODO à compléter L2.E4
+        #                                   experiment_title='NN Simple',
+        #                                   n_epochs=1000, savename='3classes',
+        #                                   ndonnees_random=5000, gen_output=True, view=True)
 
 
     def images_display(self, indexes):
@@ -283,7 +366,7 @@ class ImageCollection:
                 im = skiio.imread(self.image_folder + os.sep + self.image_list[indexes[i]])
             ax2[i].imshow(im)
 
-    
+
     def edge_detection(self):
         # images = [ 'coast_cdmc838.jpg', 'coast_natu804.jpg', 'coast_sun34.jpg' ]
         # images = ['coast_cdmc838.jpg' ,'coast_natu804.jpg', 'coast_sun34.jpg', 'forest_bost190.jpg', 'forest_for82.jpg', 'forest_land81.jpg', 'forest_land765.jpg', 'forest_land107.jpg', 'forest_nat717.jpg' , 'street_a232022.jpg', 'street_bost77.jpg', 'street_city42.jpg', 'street_par21.jpg', 'street_urb562.jpg', 'street_urban997.jpg']
