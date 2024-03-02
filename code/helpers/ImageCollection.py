@@ -305,49 +305,87 @@ class ImageCollection:
             #Plot the Sobel filter applied image
             ax[1].imshow(sobel_filtered_img, cmap=plt.cm.gray)
             ax[1].set_title('Image avec filtre de Sobel')
-
             for a in ax:
                 a.axis('off')
 
-    def hough_transform_straight_line(self):
-
-        images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
-        for img_name in images:
-            img = skiio.imread(self.image_folder + os.sep + img_name)
-
-            # Turn image to grayscale.
-            gray_img = skic.rgb2gray(img)
-            # Edge filter an image using the Canny algorithm.
-            edges = canny(gray_img, sigma=0.75, low_threshold=0.1, high_threshold=0.3)
-            # Return lines from a progressive probabilistic line Hough transform.
-            lines = probabilistic_hough_line(edges, threshold=5, line_length=35, line_gap=5)
-
-            # Generating figure
-            fig, ax = plt.subplots(ncols=3,nrows=1, figsize=(15,5), sharex=True, sharey=True)
-            ax = ax.ravel()
-
-            fig.tight_layout()
-            # Plot the original image
-            ax[0].imshow(gray_img, cmap=plt.cm.gray)
-            ax[0].set_title(f'{img_name} en noir et blanc')
-
+    def hough_transform_straight_line(self, gray_img, ax=None):
+        """
+        gray_img : grayscale image
+        ax : optional - if visuals representation are desired
+        """
+        # Edge filter an image using the Canny algorithm.
+        edges = canny(gray_img, sigma=0.75, low_threshold=0.1, high_threshold=0.3)
+        # Return lines from a progressive probabilistic line Hough transform.
+        lines = probabilistic_hough_line(edges, threshold=5, line_length=35, line_gap=5)
+        # Show pictures if specified earlier
+        if type(ax) != type(None):
             ax[1].imshow(edges, cmap=plt.cm.gray)
             ax[1].set_title('Canny edges')
-
             # Plot des lignes détectées par la transformée de Hough probabiliste.
             ax[2].imshow(edges * 0)
             for line in lines:
                 p0, p1 = line
+                print(f"Ligne p0 = {p0} and p1 = {p1}")
                 ax[2].plot((p0[0], p1[0]), (p0[1], p1[1]), 'r')  # 'r' pour rouge
             ax[2].set_xlim((0, gray_img.shape[1]))
             ax[2].set_ylim((gray_img.shape[0], 0))
             ax[2].set_title('Transformée de Hough probabiliste')
-
             for a in ax:
                 a.set_axis_off()
-            
             plt.tight_layout()
+        return lines
+        
+    def get_straight_line(self, img_list=None, show_graphs=False):
+        if img_list == None:
+            images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
+        else:
+            images = img_list
+
+        for img_name in images:
+            img = skiio.imread(self.image_folder + os.sep + img_name)
+            # Turn image to grayscale.
+            gray_img = skic.rgb2gray(img)
             
+            if show_graphs == True:
+                # Generating figure
+                fig, ax = plt.subplots(ncols=3,nrows=1, figsize=(15,5), sharex=True, sharey=True)
+                ax = ax.ravel()
+
+                fig.tight_layout()
+                # Plot the original image
+                ax[0].imshow(gray_img, cmap=plt.cm.gray)
+                ax[0].set_title(f'{img_name} en noir et blanc')
+            else:
+                ax=None
+
+            raw_lines = self.hough_transform_straight_line(gray_img, ax)
+            counted_lines = self.categorize_hough_lines(raw_lines)
+            print(f"{counted_lines}")
+
+    def categorize_hough_lines(self, lines):
+        """
+        Returns the number of horizontal lines, vertical lines and other lines
+        Return format [No Horz, No Vert, No Other]
+        """
+        cat_lines = [0,0,0]
+
+        for line in lines:
+            p0, p1 = line
+            
+            if p0[0] == p1[0]:
+                cat_lines [0] = cat_lines [0] + 1
+            elif p0[1] == p1[1]:
+                cat_lines [1] = cat_lines [1] + 1
+            else:
+                cat_lines [2] = cat_lines [2] + 1
+            # Si plus de X variation en Y
+                # Horizontal + 1
+            # Si plus de X variation en X
+                # Vertical + 1
+            # Sinon
+                # Other + 1
+        
+        return cat_lines
 
     def hough_transform_circular_elliptical(self):
         """

@@ -38,9 +38,10 @@ def problematique_APP2():
         images.generateHSVHistograms(im_list_street)
 
     #images.edge_detection()
-    images.hough_transform_straight_line()
+    images.get_straight_line(show_graphs=True)
+    #####images.hough_transform_circular_elliptical()
 
-    images.generateRepresentation()
+    #images.generateRepresentation()
     plt.show()
 
 
