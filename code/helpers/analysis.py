@@ -64,6 +64,11 @@ class Extent:
             self.xmax = np.ceil(np.max(ptList[:,0]))+1
             self.ymin = np.floor(np.min(ptList[:,1]))-1
             self.ymax = np.ceil(np.max(ptList[:,1]))+1
+            self.zmin = np.floor(np.min(ptList[:,2]))-1
+            self.zmax = np.ceil(np.max(ptList[:,2]))+1
+            # self.wmin = np.floor(np.min(ptList[:,3]))-1
+            # self.wmax = np.ceil(np.max(ptList[:,3]))+1
+
         else:
             self.xmin = xmin
             self.xmax = xmax
@@ -189,7 +194,9 @@ def genDonneesTest(ndonnees, extent):
     # génération de n données aléatoires 2D sur une plage couverte par extent
     # TODO JB: generalize to N-D
     return np.transpose(np.array([(extent.xmax - extent.xmin) * np.random.random(ndonnees) + extent.xmin,
-                                         (extent.ymax - extent.ymin) * np.random.random(ndonnees) + extent.ymin]))
+                                  (extent.ymax - extent.ymin) * np.random.random(ndonnees) + extent.ymin,
+                                  (extent.zmax - extent.zmin) * np.random.random(ndonnees) + extent.zmin]))
+                                  # (extent.wmax - extent.wmin) * np.random.random(ndonnees) + extent.wmin]))
 
 
 def plot_metrics(NNmodel):

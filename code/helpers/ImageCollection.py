@@ -31,11 +31,6 @@ from skimage.transform import probabilistic_hough_line, hough_ellipse
 from skimage.feature import canny
 from skimage.draw import ellipse_perimeter
 
-import helpers.classifiers as classifiers
-
-from keras.optimizers import Adam
-import keras as K
-
 import helpers.analysis as an
 from helpers.ClassificationData import ClassificationData
 
@@ -174,7 +169,7 @@ class ImageCollection:
             # scatter hue values
             ax[j, 1].scatter(range(n_bins), histvaluesHSV[0], s=3, c='magenta')
 
-            m1 = self.getMeanMaxValues(imageHSV)
+            m1 = self.getMeanMaxValues(imageHSV, 0)
 
             print(f"Mean Max Values: {m1} for image {i} : {self.image_list[i]}")
 
@@ -262,16 +257,18 @@ class ImageCollection:
         imageHue = imageHSV[color_index]
         # sort by y value
         imageHue = np.sort(imageHue, axis=1)
+
         hueVertical = imageHue[1]
 
         return np.mean(hueVertical[-10:])
 
 
     def getHSVData(self, image):
-        imgHSV = skic.rgb2hsv(image)
+        imageHSV = skic.rgb2hsv(image)
+        imageHSV = np.round(imageHSV * (256 - 1))
 
-        hue = self.getMeanMaxValues(imgHSV, 0)
-        sat = self.getMeanMaxValues(imgHSV, 1)
+        hue = self.getMeanMaxValues(imageHSV, 0)
+        sat = self.getMeanMaxValues(imageHSV, 1)
 
         return hue, sat
 
@@ -285,18 +282,35 @@ class ImageCollection:
 
         for i, img in enumerate(self.images):
 
-            imgHSV = skic.rgb2hsv(img)
-            hue = self.getMeanMaxValues(imgHSV, 0)
-            sat = self.getMeanMaxValues(imgHSV, 1)
+            hue, sat = self.getHSVData(img)
+            lines = self.hough_transform_straight_line(skic.rgb2gray(img))
+            hor_lines, vert_lines, other_lines = self.categorize_hough_lines(lines)
+
+            image_data = [hue, vert_lines, other_lines]
 
             if self.labels[i] == ImageCollection.imageLabels.coast:
-                data_coast.append([hue, sat])
+                data_coast.append(image_data)
             elif self.labels[i] == ImageCollection.imageLabels.forest:
-                data_forest.append([hue, sat])
+                data_forest.append(image_data)
             elif self.labels[i] == ImageCollection.imageLabels.street:
-                data_street.append([hue, sat])
+                data_street.append(image_data)
 
         data = [data_coast[:290], data_forest[:290], data_street[:290]]
+
+        fig = plt.figure()
+        ax = fig.subplots(1, 3)
+        # ax = fig.subplots(3, 3)
+        #
+        # for i, d in enumerate([data_coast, data_forest, data_street]):
+        #     ax[0, i].scatter(range(len(d)), [x[0] for x in d], c='red')
+        #     ax[1, i].scatter(range(len(d)), [x[1] for x in d], c='blue')
+        #     ax[2, i].scatter(range(len(d)), [x[2] for x in d], c='green')
+
+        ax[0].scatter(range(len(data_coast)), [x[0] for x in data_coast], c='red')
+        ax[1].scatter(range(len(data_forest)), [x[0] for x in data_forest], c='green')
+        ax[2].scatter(range(len(data_street)), [x[0] for x in data_street], c='blue')
+
+
 
         return np.array(data)
 
@@ -387,7 +401,7 @@ class ImageCollection:
     def get_straight_line(self, img_list=None, show_graphs=False, show_hist=False):
         my_images = []
         counter = 0
-        if img_list == None:
+        if img_list is None:
             default_images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
             for img_name in default_images:
                 print(f"{img_name}")
@@ -402,7 +416,7 @@ class ImageCollection:
         for i in range(counter):
             # Turn image to grayscale.
             gray_img = skic.rgb2gray(my_images[i])
-            if show_graphs == True:
+            if show_graphs is True:
                 # Generating figure
                 fig2, ax = plt.subplots(ncols=3,nrows=1, figsize=(10,5), sharex=True, sharey=True)
                 ax = ax.ravel()
@@ -411,7 +425,7 @@ class ImageCollection:
                 ax[0].imshow(gray_img, cmap=plt.cm.gray)
                 ax[0].set_title(f'{img_name} en noir et blanc')
             else:
-                ax=None
+                ax = None
             raw_lines = self.hough_transform_straight_line(gray_img, ax)
             counted_lines.append(self.categorize_hough_lines(raw_lines))
 
@@ -445,27 +459,27 @@ class ImageCollection:
         plt.suptitle(title)
         plt.tight_layout()
 
-
-
-    def categorize_hough_lines(self, lines, tolerance = 3):
+    @staticmethod
+    def categorize_hough_lines(lines, tolerance = 3):
         """
         Returns the number of horizontal lines, vertical lines and other lines
         Return format [No Horz, No Vert, No Other]
         """
-        cat_lines = [0,0,0]
+        horizontal_lines = 0
+        vertical_lines = 0
+        other_lines = 0
         
-
         for line in lines:
             p0, p1 = line
             if abs(p0[1] - p1[1]) <= tolerance:
-            #p0[0] == p1[0]:
-                cat_lines[0] = cat_lines[0] + 1
+                horizontal_lines += 1
             elif abs(p0[0] - p1[0]) <= tolerance:
-                cat_lines[1] = cat_lines[1] + 1
+                vertical_lines += 1
             else:
-                cat_lines[2] = cat_lines[2] + 1
+                other_lines += 1
         
-        return cat_lines
+        return horizontal_lines, vertical_lines, other_lines
+
 
     def view_histogrammes(self, indexes):
         """
