@@ -4,7 +4,7 @@ Problématique APP2 Module IA S8
 """
 
 import matplotlib.pyplot as plt
-
+import os
 from helpers.ImageCollection import ImageCollection
 
 
@@ -43,6 +43,17 @@ def problematique_APP2():
                                              experiment_title='probabilités gaussiennes',
                                              gen_output=True, view=True)
 
+
+    os.system("cls")
+    N = 979
+    im_list = images.get_samples(N, random_samples=True)
+    sorted_list = sorted(im_list)
+    #print(sorted_list)
+    images.get_straight_line(show_graphs=False, img_list=sorted_list, show_hist=True)
+    
+    #####images.hough_transform_circular_elliptical()
+
+    #images.generateRepresentation()
     plt.show()
 
 

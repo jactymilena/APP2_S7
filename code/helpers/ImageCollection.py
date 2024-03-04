@@ -163,14 +163,7 @@ class ImageCollection:
 
         # for i in range(len(self.image_list)):
         for j, i in enumerate(im_list):
-        
-            # charge une image si nécessaire
-            if self.all_images_loaded:
-                imageRGB = self.image_list[i]
-            else:
-                imageRGB = skiio.imread(
-                    self.image_folder + os.sep + self.image_list[i])
-                
+            imageRGB = self.get_RGB_from_indx(i)
             imageHSV = skic.rgb2hsv(imageRGB)
             imageHSV = np.round(imageHSV * (n_bins - 1))
 
@@ -215,11 +208,7 @@ class ImageCollection:
         # for i in im_list:
         for i in range(len(self.image_list)):
             # charge une image si nécessaire
-            if self.all_images_loaded:
-                imageRGB = self.image_list[i]
-            else:
-                imageRGB = skiio.imread(
-                    self.image_folder + os.sep + self.image_list[i])
+            imageRGB = self.get_RGB_from_indx(i)
             
             print(f"Started Image {i} : {self.image_list[i]}") 
             # red_qty.append(self.get_color_quantity(imageRGB, 0))
@@ -395,33 +384,68 @@ class ImageCollection:
             plt.tight_layout()
         return lines
         
-    def get_straight_line(self, img_list=None, show_graphs=False):
+    def get_straight_line(self, img_list=None, show_graphs=False, show_hist=False):
+        my_images = []
+        counter = 0
         if img_list == None:
-            images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
+            default_images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
+            for img_name in default_images:
+                print(f"{img_name}")
+                my_images.append(skiio.imread(self.image_folder + os.sep + img_name))
+                counter = counter + 1
         else:
-            images = img_list
+            for i in img_list:
+                my_images.append(self.get_RGB_from_indx(i))
+                counter = counter + 1
 
-        for img_name in images:
-            print(f"{img_name}")
-            img = skiio.imread(self.image_folder + os.sep + img_name)
+        counted_lines = []
+        for i in range(counter):
             # Turn image to grayscale.
-            gray_img = skic.rgb2gray(img)
-            
+            gray_img = skic.rgb2gray(my_images[i])
             if show_graphs == True:
                 # Generating figure
-                fig, ax = plt.subplots(ncols=3,nrows=1, figsize=(10,5), sharex=True, sharey=True)
+                fig2, ax = plt.subplots(ncols=3,nrows=1, figsize=(10,5), sharex=True, sharey=True)
                 ax = ax.ravel()
-
-                fig.tight_layout()
+                fig2.tight_layout()
                 # Plot the original image
                 ax[0].imshow(gray_img, cmap=plt.cm.gray)
                 ax[0].set_title(f'{img_name} en noir et blanc')
             else:
                 ax=None
-
             raw_lines = self.hough_transform_straight_line(gray_img, ax)
-            counted_lines = self.categorize_hough_lines(raw_lines)
-            print(f"{counted_lines}")
+            counted_lines.append(self.categorize_hough_lines(raw_lines))
+
+        if show_hist:
+            self.show_cat_lines_hist(counter, counted_lines)
+            
+        
+    def show_cat_lines_hist(self, counter, counted_lines):
+        # Extract the first value (horizontal lines count) from each row in counted_lines
+        horizontal_counts = [row[0] for row in counted_lines]
+        vertical_counts = [row[1] for row in counted_lines]
+        other_counts = [row[2] for row in counted_lines]
+        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 5))
+        
+        axes[0].hist(range(len(horizontal_counts)), weights=horizontal_counts, bins=counter, color='blue', alpha=0.7)
+        axes[0].set_title('Lignes Horizontales')
+        axes[0].set_xlabel('Index de l\'image')
+        axes[0].set_ylabel('Fréquence')
+        
+        axes[1].hist(range(len(vertical_counts)), weights=vertical_counts, bins=counter, color='green', alpha=0.7)
+        axes[1].set_title('Lignes Verticales')
+        axes[1].set_xlabel('Index de l\'image')
+        axes[1].set_ylabel('Fréquence')
+        
+        axes[2].hist(range(len(other_counts)), weights=other_counts, bins=counter, color='red', alpha=0.7)
+        axes[2].set_title('Autres Lignes')
+        axes[2].set_xlabel('Index de l\'image')
+        axes[2].set_ylabel('Fréquence')
+
+        title = 'Histogramme des types de lignes dans les images'
+        plt.suptitle(title)
+        plt.tight_layout()
+
+
 
     def categorize_hough_lines(self, lines):
         """
@@ -570,3 +594,9 @@ class ImageCollection:
             ax[image_counter, 2].legend(['Hue', 'Sat', 'Bright'])
 
              
+    def get_RGB_from_indx(self, indx):
+        if self.all_images_loaded:
+            imageRGB = self.image_list[indx]
+        else:
+            imageRGB = skiio.imread(self.image_folder + os.sep + self.image_list[indx])
+        return imageRGB
