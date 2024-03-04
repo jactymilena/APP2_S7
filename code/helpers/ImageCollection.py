@@ -284,7 +284,7 @@ class ImageCollection:
 
             hue, sat = self.getHSVData(img)
             lines = self.hough_transform_straight_line(skic.rgb2gray(img))
-            hor_lines, vert_lines, other_lines = self.categorize_hough_lines(lines)
+            hor_lines, vert_lines, other_lines, h_parallel_lines, v_parallel_lines = self.categorize_hough_lines(lines)
 
             image_data = [hue, vert_lines, other_lines]
 
@@ -438,7 +438,9 @@ class ImageCollection:
         horizontal_counts = [row[0] for row in counted_lines]
         vertical_counts = [row[1] for row in counted_lines]
         other_counts = [row[2] for row in counted_lines]
-        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 5))
+        h_para_count = [row[3] for row in counted_lines]
+        v_para_count = [row[4] for row in counted_lines]
+        fig, axes = plt.subplots(nrows=1, ncols=5, figsize=(15, 5))
         
         axes[0].hist(range(len(horizontal_counts)), weights=horizontal_counts, bins=counter, color='blue', alpha=0.7)
         axes[0].set_title('Lignes Horizontales')
@@ -454,6 +456,16 @@ class ImageCollection:
         axes[2].set_title('Autres Lignes')
         axes[2].set_xlabel('Index de l\'image')
         axes[2].set_ylabel('Fréquence')
+
+        axes[3].hist(range(len(other_counts)), weights=h_para_count, bins=counter, color='purple', alpha=0.7)
+        axes[3].set_title('Lignes parallèles horizontales')
+        axes[3].set_xlabel('Index de l\'image')
+        axes[3].set_ylabel('Fréquence')
+
+        axes[4].hist(range(len(other_counts)), weights=v_para_count, bins=counter, color='green', alpha=0.7)
+        axes[4].set_title('Lignes parallèles verticales')
+        axes[4].set_xlabel('Index de l\'image')
+        axes[4].set_ylabel('Fréquence')
 
         title = 'Histogramme des types de lignes dans les images'
         plt.suptitle(title)
@@ -477,8 +489,9 @@ class ImageCollection:
             else:
                 other_lines += 1
         # Calcul du nombre de lignes verticales paralleles
-        qty_vertical_parallel_lines = self.count_parallel_lines(vertical_lines,'v')
-        return len(horizontal_lines), len(vertical_lines), other_lines
+        qty_v_parallel_lines = self.count_parallel_lines(vertical_lines,'v')
+        qty_h_parallel_lines = self.count_parallel_lines(horizontal_lines,'h')
+        return len(horizontal_lines), len(vertical_lines), other_lines, qty_h_parallel_lines, qty_v_parallel_lines
 
     @staticmethod
     def count_parallel_lines(lines, mode='v'):
