@@ -54,11 +54,11 @@ def problematique_APP2():
 
 
     
-    # N = 979
-    # im_list = images.get_samples(N, random_samples=True)
-    # sorted_list = sorted(im_list)
-    # #print(sorted_list)
-    # images.get_straight_line(img_list=sorted_list, show_graphs=False, show_hist=True)
+    N = 979
+    im_list = images.get_samples(N, random_samples=True)
+    sorted_list = sorted(im_list)
+    #print(sorted_list)
+    images.get_straight_line(img_list=sorted_list, show_graphs=False, show_hist=True)
 
     #images.generateRepresentation()
     plt.show()
