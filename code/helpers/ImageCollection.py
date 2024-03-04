@@ -290,51 +290,21 @@ class ImageCollection:
         data_forest = []
         data_street = []
 
-        # for i, img in enumerate(self.images):
-        #     imgHSV = skic.rgb2hsv(img)
-        #     hue = self.getMeanMaxValues(imgHSV, 0)
-        #     sat = self.getMeanMaxValues(imgHSV, 1)
-        #
-        #     if self.labels[i] == ImageCollection.imageLabels.coast:
-        #         data_coast.append([hue, sat])
-        #     elif self.labels[i] == ImageCollection.imageLabels.forest:
-        #         data_forest.append([hue, sat])
-        #     elif self.labels[i] == ImageCollection.imageLabels.street:
-        #         data_street.append([hue, sat])
-
-
-
-        for img in self.images[0:6]:
+        for i, img in enumerate(self.images):
             imgHSV = skic.rgb2hsv(img)
             hue = self.getMeanMaxValues(imgHSV, 0)
             sat = self.getMeanMaxValues(imgHSV, 1)
-            data_coast.append([hue, sat])
 
-        for img in self.images[6:12]:
-            imgHSV = skic.rgb2hsv(img)
-            hue = self.getMeanMaxValues(imgHSV, 0)
-            sat = self.getMeanMaxValues(imgHSV, 1)
-            data_forest.append([hue, sat])
+            if self.labels[i] == ImageCollection.imageLabels.coast:
+                data_coast.append([hue, sat])
+            elif self.labels[i] == ImageCollection.imageLabels.forest:
+                data_forest.append([hue, sat])
+            elif self.labels[i] == ImageCollection.imageLabels.street:
+                data_street.append([hue, sat])
 
-        for img in self.images[12:18]:
-            imgHSV = skic.rgb2hsv(img)
-            imgHSV = np.round(imgHSV * (n_bins - 1))
-            hue = self.getMeanMaxValues(imgHSV, 0)
-            sat = self.getMeanMaxValues(imgHSV, 1)
-            data_street.append([hue, sat])
-
-        data = [data_coast, data_forest, data_street]
-
-        # print(f"Data Coast shape: {data_coast.shape}")
-
-        # for img in self.images:
-        #     imgHSV = skic.rgb2hsv(img)
-        #     imgHSV = np.round(imgHSV * (n_bins - 1))
-        #     hue_peak = self.getHuePeak(imgHSV)
-        #     data.append(hue_peak)
+        data = [data_coast[:290], data_forest[:290], data_street[:290]]
 
         return np.array(data)
-
 
     def generateRepresentation(self):
         # produce a ClassificationData object usable by the classifiers
@@ -348,24 +318,7 @@ class ImageCollection:
         data.getStats(gen_print=True)
         data.getBorders(view=True)
 
-        # d1 = hsv_data[0:2]
-        # d2 = hsv_data[3:5]
-        # d3 = hsv_data[6:8]
-        #
-        # data_train = ClassificationData(np.concatenate(d1, d2, d3))
-
-        n_neurons = 20
-        n_layers = 10
-
-        nn1 = classifiers.NNClassify_APP2(data2train=data, data2test=data,
-                                          n_layers=n_layers, n_neurons=n_neurons, innerActivation='tanh',
-                                          outputActivation='softmax', optimizer=Adam(), loss='binary_crossentropy',
-                                          metrics=['accuracy'],
-                                          callback_list=[K.callbacks.EarlyStopping(monitor='val_loss', patience=10)],     # TODO à compléter L2.E4
-                                          experiment_title='NN Simple',
-                                          n_epochs=1000, savename='3classes',
-                                          ndonnees_random=5000, gen_output=True, view=True)
-
+        return data
 
     def images_display(self, indexes):
         """
