@@ -459,18 +459,16 @@ class ImageCollection:
         plt.suptitle(title)
         plt.tight_layout()
 
-
     @staticmethod
-    def categorize_hough_lines(lines):
+    def categorize_hough_lines(lines, tolerance = 3):
         """
         Returns the number of horizontal lines, vertical lines and other lines
         Return format [No Horz, No Vert, No Other]
         """
-        tolerance = 3
         horizontal_lines = 0
         vertical_lines = 0
         other_lines = 0
-
+        
         for line in lines:
             p0, p1 = line
             if abs(p0[1] - p1[1]) <= tolerance:
@@ -481,6 +479,7 @@ class ImageCollection:
                 other_lines += 1
         
         return horizontal_lines, vertical_lines, other_lines
+
 
     def hough_transform_circular_elliptical(self):
         """
@@ -611,7 +610,8 @@ class ImageCollection:
              
     def get_RGB_from_indx(self, indx):
         if self.all_images_loaded:
-            imageRGB = self.image_list[indx]
+            img_name = self.image_list[indx]
+            imageRGB = skiio.imread(self.image_folder + os.sep + img_name)
         else:
             imageRGB = skiio.imread(self.image_folder + os.sep + self.image_list[indx])
         return imageRGB
