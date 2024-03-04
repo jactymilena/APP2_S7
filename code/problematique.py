@@ -22,7 +22,7 @@ def problematique_APP2():
     # im_list_forest = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.coast)
     # images.generateHSVHistograms(im_list_forest)
 
-    if True:
+    if False:
         n_neurons = 10
         n_layers = 7
         nn1 = classifiers.NNClassify_APP2(data2train=data, data2test=data,
@@ -31,7 +31,7 @@ def problematique_APP2():
                                           callback_list=[K.callbacks.EarlyStopping(monitor='val_loss', patience=10)],
                                           metrics=['accuracy'],
                                           experiment_title='NN Simple',
-                                          n_epochs=2000, savename='3classes',
+                                          n_epochs=1500, savename='3classes',
                                           ndonnees_random=5000, gen_output=True, view=True)
 
     if False:
@@ -53,14 +53,12 @@ def problematique_APP2():
                                              gen_output=True, view=True)
 
 
-    os.system("cls")
-    N = 979
-    im_list = images.get_samples(N, random_samples=True)
-    sorted_list = sorted(im_list)
-    #print(sorted_list)
-    images.get_straight_line(img_list=sorted_list, show_graphs=False, show_hist=True)
-    
-   
+    # os.system("cls")
+    # N = 979
+    # im_list = images.get_samples(N, random_samples=True)
+    # sorted_list = sorted(im_list)
+    # #print(sorted_list)
+    # images.get_straight_line(img_list=sorted_list, show_graphs=False, show_hist=True)
 
     #images.generateRepresentation()
     plt.show()
