@@ -4,7 +4,7 @@ Problématique APP2 Module IA S8
 """
 
 import matplotlib.pyplot as plt
-
+import os
 from helpers.ImageCollection import ImageCollection
 
 
@@ -38,7 +38,7 @@ def problematique_APP2():
         # images.generateHSVHistograms(im_list_street)
 
     #images.edge_detection()
-    images.get_straight_line(show_graphs=True)
+    os.system("cls")
     #####images.hough_transform_circular_elliptical()
 
     #images.generateRepresentation()
