@@ -467,51 +467,6 @@ class ImageCollection:
         
         return cat_lines
 
-    def hough_transform_circular_elliptical(self):
-        """
-        This function should NOT be used and is there only for possible future fixes.
-        """
-        #images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
-        images = ['coast_art487.jpg']
-        print("A")
-        for img_name in images:
-            print("B")
-            img = skiio.imread(self.image_folder + os.sep + img_name)
-
-            # Turn image to grayscale.
-            gray_img = skic.rgb2gray(img)
-            # Edge filter an image using the Canny algorithm.
-            edges = canny(gray_img, sigma=0.75)
-            #edges = canny(gray_img, sigma=1, low_threshold=0.1, high_threshold=0.3)
-            print("C")
-            # Perform a Hough Transform
-            # The accuracy corresponds to the bin size of a major axis.
-            # The value is chosen in order to get a single high accumulator.
-            # The threshold eliminates low accumulators
-            result = hough_ellipse(edges, min_size=4, max_size=50)
-            result.sort(order='accumulator')
-
-            # Estimated parameters for the ellipse
-            best = list(result[-1])
-            yc, xc, a, b = (int(round(x)) for x in best[1:5])
-            orientation = best[5]
-
-            print("D")
-            # Draw the ellipse on the original image
-            cy, cx = ellipse_perimeter(yc, xc, a, b, orientation)
-            img[cy, cx] = (0, 0, 255)
-            # Draw the edge (white) and the resulting ellipse (red)
-            edges = skic.gray2rgb(img_as_ubyte(edges))
-            edges[cy, cx] = (250, 0, 0)
-            
-            fig2, (ax1, ax2) = plt.subplots(ncols=2, nrows=1, figsize=(8, 4), sharex=True, sharey=True)
-            ax1.set_title('Original picture')
-            ax1.imshow(img)
-            
-            ax2.set_title('Edge (white) and result (red)')
-            ax2.imshow(edges)
-            print("E")
-
     def view_histogrammes(self, indexes):
         """
         Affiche les histogrammes de couleur de quelques images
