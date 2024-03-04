@@ -278,19 +278,24 @@ class ImageCollection:
         return np.mean(hueVertical[-10:])
 
 
-    def getHSVData(self):
-        """
-        Retourne les données HSV
-        """
-        n_bins = 256
+    def getHSVData(self, image):
+        imgHSV = skic.rgb2hsv(image)
 
-        # self.load_images(6)
+        hue = self.getMeanMaxValues(imgHSV, 0)
+        sat = self.getMeanMaxValues(imgHSV, 1)
 
+        return hue, sat
+
+    def getImagesFeature(self):
+        """
+        Retourne les données des images
+        """
         data_coast = []
         data_forest = []
         data_street = []
 
         for i, img in enumerate(self.images):
+
             imgHSV = skic.rgb2hsv(img)
             hue = self.getMeanMaxValues(imgHSV, 0)
             sat = self.getMeanMaxValues(imgHSV, 1)
@@ -312,8 +317,8 @@ class ImageCollection:
         # hsv_data = self.getHSVData()
         # print(hsv_data.shape)
 
-        hsv_data = self.getHSVData()
-        data = ClassificationData(hsv_data)
+        features = self.getImagesFeature()
+        data = ClassificationData(features)
 
         data.getStats(gen_print=True)
         data.getBorders(view=True)
