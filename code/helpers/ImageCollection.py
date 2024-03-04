@@ -447,13 +447,13 @@ class ImageCollection:
 
 
 
-    def categorize_hough_lines(self, lines):
+    def categorize_hough_lines(self, lines, tolerance = 3):
         """
         Returns the number of horizontal lines, vertical lines and other lines
         Return format [No Horz, No Vert, No Other]
         """
         cat_lines = [0,0,0]
-        tolerance = 3
+        
 
         for line in lines:
             p0, p1 = line
