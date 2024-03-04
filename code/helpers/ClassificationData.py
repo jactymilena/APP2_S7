@@ -41,10 +41,16 @@ class ClassificationData:
 
         # reorganisation en 1 seul vecteur pour certains entraînements et les predicts
         self.dataLists = np.array(self.dataLists)
-        self._x, self._y, self._z = self.dataLists.shape
+
         # Chaque ligne de data contient 1 point en 2D
         # Les points des 3 classes sont mis à la suite en 1 seul long array
-        self.data1array = self.dataLists.reshape(self._x * self._y, self._z)
+        if len(self.dataLists.shape) == 3:
+            self._x, self._y, self._z = self.dataLists.shape
+            self.data1array = self.dataLists.reshape(self._x * self._y, self._z)
+        elif len(self.dataLists.shape) == 2:
+            self._x, self._y = self.dataLists.shape
+            self.data1array = self.dataLists.reshape(self._x * self._y, 1)
+
         self.ndata = len(self.data1array)
 
         # assignation des classes d'origine 0 à 2 pour C1 à C3 respectivement
