@@ -164,14 +164,7 @@ class ImageCollection:
 
         # for i in range(len(self.image_list)):
         for j, i in enumerate(im_list):
-        
-            # charge une image si nécessaire
-            if self.all_images_loaded:
-                imageRGB = self.image_list[i]
-            else:
-                imageRGB = skiio.imread(
-                    self.image_folder + os.sep + self.image_list[i])
-                
+            imageRGB = self.get_RGB_from_indx(i)
             imageHSV = skic.rgb2hsv(imageRGB)
             imageHSV = np.round(imageHSV * (n_bins - 1))
 
@@ -216,11 +209,7 @@ class ImageCollection:
         # for i in im_list:
         for i in range(len(self.image_list)):
             # charge une image si nécessaire
-            if self.all_images_loaded:
-                imageRGB = self.image_list[i]
-            else:
-                imageRGB = skiio.imread(
-                    self.image_folder + os.sep + self.image_list[i])
+            imageRGB = self.get_RGB_from_indx(i)
             
             print(f"Started Image {i} : {self.image_list[i]}") 
             # red_qty.append(self.get_color_quantity(imageRGB, 0))
@@ -593,3 +582,9 @@ class ImageCollection:
             ax[image_counter, 2].legend(['Hue', 'Sat', 'Bright'])
 
              
+    def get_RGB_from_indx(self, indx):
+        if self.all_images_loaded:
+            imageRGB = self.image_list[indx]
+        else:
+            imageRGB = skiio.imread(self.image_folder + os.sep + self.image_list[indx])
+        return imageRGB
