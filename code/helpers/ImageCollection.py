@@ -407,33 +407,37 @@ class ImageCollection:
             plt.tight_layout()
         return lines
         
-    def get_straight_line(self, img_list=None, show_graphs=False):
+    def get_straight_line(self, img_list=None, show_graphs=False, show_hist=False):
+        my_images = []
+        counter = 0
         if img_list == None:
-            images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
+            default_images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
+            for img_name in default_images:
+                print(f"{img_name}")
+                my_images.append(skiio.imread(self.image_folder + os.sep + img_name))
+                counter = counter + 1
         else:
-            images = img_list
+            for i in img_list:
+                my_images.append(self.get_RGB_from_indx(i))
+                counter = counter + 1
 
-        for img_name in images:
-            print(f"{img_name}")
-            img = skiio.imread(self.image_folder + os.sep + img_name)
+        counted_lines = []
+        for i in range(counter):
             # Turn image to grayscale.
-            gray_img = skic.rgb2gray(img)
-            
+            gray_img = skic.rgb2gray(my_images[i])
             if show_graphs == True:
                 # Generating figure
-                fig, ax = plt.subplots(ncols=3,nrows=1, figsize=(10,5), sharex=True, sharey=True)
+                fig2, ax = plt.subplots(ncols=3,nrows=1, figsize=(10,5), sharex=True, sharey=True)
                 ax = ax.ravel()
-
-                fig.tight_layout()
+                fig2.tight_layout()
                 # Plot the original image
                 ax[0].imshow(gray_img, cmap=plt.cm.gray)
                 ax[0].set_title(f'{img_name} en noir et blanc')
             else:
                 ax=None
-
             raw_lines = self.hough_transform_straight_line(gray_img, ax)
-            counted_lines = self.categorize_hough_lines(raw_lines)
-            print(f"{counted_lines}")
+            counted_lines.append(self.categorize_hough_lines(raw_lines))
+
 
     def categorize_hough_lines(self, lines):
         """
