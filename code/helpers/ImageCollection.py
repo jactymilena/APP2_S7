@@ -438,6 +438,37 @@ class ImageCollection:
             raw_lines = self.hough_transform_straight_line(gray_img, ax)
             counted_lines.append(self.categorize_hough_lines(raw_lines))
 
+        if show_hist:
+            self.show_cat_lines_hist(counter, counted_lines)
+            
+        
+    def show_cat_lines_hist(self, counter, counted_lines):
+        # Extract the first value (horizontal lines count) from each row in counted_lines
+        horizontal_counts = [row[0] for row in counted_lines]
+        vertical_counts = [row[1] for row in counted_lines]
+        other_counts = [row[2] for row in counted_lines]
+        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 5))
+        
+        axes[0].hist(range(len(horizontal_counts)), weights=horizontal_counts, bins=counter, color='blue', alpha=0.7)
+        axes[0].set_title('Lignes Horizontales')
+        axes[0].set_xlabel('Index de l\'image')
+        axes[0].set_ylabel('Fréquence')
+        
+        axes[1].hist(range(len(vertical_counts)), weights=vertical_counts, bins=counter, color='green', alpha=0.7)
+        axes[1].set_title('Lignes Verticales')
+        axes[1].set_xlabel('Index de l\'image')
+        axes[1].set_ylabel('Fréquence')
+        
+        axes[2].hist(range(len(other_counts)), weights=other_counts, bins=counter, color='red', alpha=0.7)
+        axes[2].set_title('Autres Lignes')
+        axes[2].set_xlabel('Index de l\'image')
+        axes[2].set_ylabel('Fréquence')
+
+        title = 'Histogramme des types de lignes dans les images'
+        plt.suptitle(title)
+        plt.tight_layout()
+
+
 
     def categorize_hough_lines(self, lines):
         """
