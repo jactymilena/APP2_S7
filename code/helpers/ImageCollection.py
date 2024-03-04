@@ -169,7 +169,7 @@ class ImageCollection:
             # scatter hue values
             ax[j, 1].scatter(range(n_bins), histvaluesHSV[0], s=3, c='magenta')
 
-            m1 = self.getMeanMaxValues(imageHSV, 0)
+            m1 = self.get_mean_max_values(imageHSV, 0)
 
             print(f"Mean Max Values: {m1} for image {i} : {self.image_list[i]}")
 
@@ -250,29 +250,41 @@ class ImageCollection:
         return histvaluesHSV[0].max()
 
 
-    def getMeanMaxValues(self, imageHSV, color_index):
+    def get_mean_max_values(self, image_hsv, color_index):
         """
         Retourne la moyenne des pics du Hue
         """
-        imageHue = imageHSV[color_index]
+        image_arr = image_hsv[color_index]
+        temp = image_arr
+
+        arr = []
+        for i in range(256):
+            arr.append([i, image_arr[i]])
+
+        # np.argmax(image_arr, axis=0)
+
         # sort by y value
-        imageHue = np.sort(imageHue, axis=1)
+        # sorted_arr = np.sort(np.array(arr), axis=0)
+        sorted_arr = sorted(arr, key=lambda x: x[1])
 
-        hueVertical = imageHue[1]
+        # imageIndex = np.sort(imageIndex, axis=1)
+        hueVertical = sorted_arr[0]
 
-        return np.mean(hueVertical[-10:])
+        return np.mean(np.array(hueVertical[-10:]))
 
 
-    def getHSVData(self, image):
+    def get_hsv_data(self, image):
         imageHSV = skic.rgb2hsv(image)
         imageHSV = np.round(imageHSV * (256 - 1))
 
-        hue = self.getMeanMaxValues(imageHSV, 0)
-        sat = self.getMeanMaxValues(imageHSV, 1)
+        histvaluesHSV = self.generateHistogram(imageHSV)
+
+        hue = self.get_mean_max_values(histvaluesHSV, 0)
+        sat = self.get_mean_max_values(histvaluesHSV, 1)
 
         return hue, sat
 
-    def getImagesFeature(self):
+    def get_images_feature(self):
         """
         Retourne les données des images
         """
@@ -282,7 +294,7 @@ class ImageCollection:
 
         for i, img in enumerate(self.images):
 
-            hue, sat = self.getHSVData(img)
+            hue, sat = self.get_hsv_data(img)
             lines = self.hough_transform_straight_line(skic.rgb2gray(img))
             hor_lines, vert_lines, other_lines = self.categorize_hough_lines(lines)
 
@@ -320,7 +332,7 @@ class ImageCollection:
         # hsv_data = self.getHSVData()
         # print(hsv_data.shape)
 
-        features = self.getImagesFeature()
+        features = self.get_images_feature()
         data = ClassificationData(features)
 
         data.getStats(gen_print=True)
