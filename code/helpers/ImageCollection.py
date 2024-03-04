@@ -471,72 +471,57 @@ class ImageCollection:
         plt.suptitle(title)
         plt.tight_layout()
 
-    @staticmethod
-    def categorize_hough_lines(lines, tolerance = 3):
+    def categorize_hough_lines(self, lines, tolerance = 3):
         """
         Returns the number of horizontal lines, vertical lines and other lines
         Return format [No Horz, No Vert, No Other]
         """
-        horizontal_lines = 0
-        vertical_lines = 0
+        horizontal_lines = []
+        vertical_lines = []
         other_lines = 0
         
         for line in lines:
             p0, p1 = line
             if abs(p0[1] - p1[1]) <= tolerance:
-                horizontal_lines += 1
+                horizontal_lines.append(line)
             elif abs(p0[0] - p1[0]) <= tolerance:
-                vertical_lines += 1
+                vertical_lines.append(line)
             else:
                 other_lines += 1
-        
-        return horizontal_lines, vertical_lines, other_lines
+        # Calcul du nombre de lignes verticales paralleles
+        qty_vertical_parallel_lines = self.count_parallel_lines(vertical_lines,'v')
+        return len(horizontal_lines), len(vertical_lines), other_lines
 
-
-    def hough_transform_circular_elliptical(self):
+    @staticmethod
+    def count_parallel_lines(lines, mode='v'):
         """
-        This function should NOT be used and is there only for possible future fixes.
+        lines: tableau de lignes pré-triées à valider
+        mode: sélectionne la parallèlitée verticale (mode='v') ou horizontale (mode='h')
+            default is mode='v'
         """
-        #images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
-        images = ['coast_art487.jpg']
-        print("A")
-        for img_name in images:
-            print("B")
-            img = skiio.imread(self.image_folder + os.sep + img_name)
-
-            # Turn image to grayscale.
-            gray_img = skic.rgb2gray(img)
-            # Edge filter an image using the Canny algorithm.
-            edges = canny(gray_img, sigma=0.75)
-            #edges = canny(gray_img, sigma=1, low_threshold=0.1, high_threshold=0.3)
-            print("C")
-            # Perform a Hough Transform
-            # The accuracy corresponds to the bin size of a major axis.
-            # The value is chosen in order to get a single high accumulator.
-            # The threshold eliminates low accumulators
-            result = hough_ellipse(edges, min_size=4, max_size=50)
-            result.sort(order='accumulator')
-
-            # Estimated parameters for the ellipse
-            best = list(result[-1])
-            yc, xc, a, b = (int(round(x)) for x in best[1:5])
-            orientation = best[5]
-
-            print("D")
-            # Draw the ellipse on the original image
-            cy, cx = ellipse_perimeter(yc, xc, a, b, orientation)
-            img[cy, cx] = (0, 0, 255)
-            # Draw the edge (white) and the resulting ellipse (red)
-            edges = skic.gray2rgb(img_as_ubyte(edges))
-            edges[cy, cx] = (250, 0, 0)
-            
-            fig2, (ax1, ax2) = plt.subplots(ncols=2, nrows=1, figsize=(8, 4), sharex=True, sharey=True)
-            ax1.set_title('Original picture')
-            ax1.imshow(img)
-            
-            ax2.set_title('Edge (white) and result (red)')
-            ax2.imshow(edges)
-            print("E")
+        num_lines = 0
+        for i in range(len(lines)):
+            line_a = lines[i]
+            if mode == 'v':
+                pa_min = min(line_a[0][1], line_a[1][1])
+                pa_max = max(line_a[0][1], line_a[1][1])
+            elif mode == 'h':
+                pa_min = min(line_a[0][0], line_a[1][0])
+                pa_max = max(line_a[0][0], line_a[1][0])
+            for j in range(i + 1, len(lines)):
+                line_b = lines[j]
+                if mode == 'v':
+                    pb_min = min(line_b[0][1], line_b[1][1])
+                    pb_max = max(line_b[0][1], line_b[1][1])
+                elif mode == 'h':
+                    pb_min = min(line_b[0][0], line_b[1][0])
+                    pb_max = max(line_b[0][0], line_b[1][0])
+                # Vérification et somme
+                if not((pb_max < pa_min) or (pb_min > pa_max)):
+                    num_lines += 1
+                else:
+                    num_lines = 0
+        return num_lines
 
     def view_histogrammes(self, indexes):
         """
