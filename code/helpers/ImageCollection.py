@@ -596,7 +596,8 @@ class ImageCollection:
              
     def get_RGB_from_indx(self, indx):
         if self.all_images_loaded:
-            imageRGB = self.image_list[indx]
+            img_name = self.image_list[indx]
+            imageRGB = skiio.imread(self.image_folder + os.sep + img_name)
         else:
             imageRGB = skiio.imread(self.image_folder + os.sep + self.image_list[indx])
         return imageRGB
