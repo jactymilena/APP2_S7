@@ -427,7 +427,7 @@ class ImageCollection:
             ax[2].imshow(edges * 0)
             for line in lines:
                 p0, p1 = line
-                print(f"Ligne p0 = {p0} and p1 = {p1}")
+                #print(f"Ligne p0 = {p0} and p1 = {p1}")
                 ax[2].plot((p0[0], p1[0]), (p0[1], p1[1]), 'r')  # 'r' pour rouge
             ax[2].set_xlim((0, gray_img.shape[1]))
             ax[2].set_ylim((gray_img.shape[0], 0))
@@ -444,13 +444,14 @@ class ImageCollection:
             images = img_list
 
         for img_name in images:
+            print(f"{img_name}")
             img = skiio.imread(self.image_folder + os.sep + img_name)
             # Turn image to grayscale.
             gray_img = skic.rgb2gray(img)
             
             if show_graphs == True:
                 # Generating figure
-                fig, ax = plt.subplots(ncols=3,nrows=1, figsize=(15,5), sharex=True, sharey=True)
+                fig, ax = plt.subplots(ncols=3,nrows=1, figsize=(10,5), sharex=True, sharey=True)
                 ax = ax.ravel()
 
                 fig.tight_layout()
@@ -470,22 +471,17 @@ class ImageCollection:
         Return format [No Horz, No Vert, No Other]
         """
         cat_lines = [0,0,0]
+        tolerance = 3
 
         for line in lines:
             p0, p1 = line
-            
-            if p0[0] == p1[0]:
-                cat_lines [0] = cat_lines [0] + 1
-            elif p0[1] == p1[1]:
-                cat_lines [1] = cat_lines [1] + 1
+            if abs(p0[1] - p1[1]) <= tolerance:
+            #p0[0] == p1[0]:
+                cat_lines[0] = cat_lines[0] + 1
+            elif abs(p0[0] - p1[0]) <= tolerance:
+                cat_lines[1] = cat_lines[1] + 1
             else:
-                cat_lines [2] = cat_lines [2] + 1
-            # Si plus de X variation en Y
-                # Horizontal + 1
-            # Si plus de X variation en X
-                # Vertical + 1
-            # Sinon
-                # Other + 1
+                cat_lines[2] = cat_lines[2] + 1
         
         return cat_lines
 
