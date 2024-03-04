@@ -49,9 +49,9 @@ def problematique_APP2():
     im_list = images.get_samples(N, random_samples=True)
     sorted_list = sorted(im_list)
     #print(sorted_list)
-    images.get_straight_line(show_graphs=False, img_list=sorted_list, show_hist=True)
+    images.get_straight_line(img_list=sorted_list, show_graphs=False, show_hist=True)
     
-    #####images.hough_transform_circular_elliptical()
+   
 
     #images.generateRepresentation()
     plt.show()
