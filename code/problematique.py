@@ -17,7 +17,7 @@ import keras as K
 def problematique_APP2():
     images = ImageCollection(True)
     data = images.generateRepresentation()
-
+    os.system("cls")
     # N = 6
     # im_list_forest = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.coast)
     # images.generateHSVHistograms(im_list_forest)
@@ -53,7 +53,7 @@ def problematique_APP2():
                                              gen_output=True, view=True)
 
 
-    # os.system("cls")
+    
     # N = 979
     # im_list = images.get_samples(N, random_samples=True)
     # sorted_list = sorted(im_list)
