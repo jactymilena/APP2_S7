@@ -16,25 +16,25 @@ import keras as K
 #######################################
 def problematique_APP2():
     images = ImageCollection(True)
-    data = images.generateRepresentation()
-    os.system("cls")
+    data = images.generate_representation()
+    # os.system("cls")
     # N = 6
     # im_list_forest = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.coast)
     # images.generateHSVHistograms(im_list_forest)
 
-    if False:
+    if True:
         n_neurons = 10
         n_layers = 7
         nn1 = classifiers.NNClassify_APP2(data2train=data, data2test=data,
                                           n_layers=n_layers, n_neurons=n_neurons, innerActivation='tanh',
-                                          outputActivation='softmax', optimizer=Adam(learning_rate=0.0001), loss='binary_crossentropy',
+                                          outputActivation='softmax', optimizer=Adam(learning_rate=0.0004), loss='binary_crossentropy',
                                           callback_list=[K.callbacks.EarlyStopping(monitor='val_loss', patience=10)],
                                           metrics=['accuracy'],
                                           experiment_title='NN Simple',
                                           n_epochs=1500, savename='3classes',
                                           ndonnees_random=5000, gen_output=True, view=True)
 
-    if False:
+    if True:
         ppv1 = classifiers.PPVClassify_APP2(data2train=data, data2test=data, n_neighbors=1,
                                             experiment_title='1-PPV avec données orig comme représentants',
                                             gen_output=True, view=True)
@@ -43,7 +43,7 @@ def problematique_APP2():
                                             experiment_title='5-PPV avec données orig comme représentants',
                                             gen_output=True, view=True)
 
-    if False:
+    if True:
         apriori = [1/3, 1/3, 1/3]
         cost = [[0, 1, 1], [1, 0, 1], [1, 1, 0]]
         # Bayes gaussien les apriori et coûts ne sont pas considérés pour l'instant
@@ -54,11 +54,11 @@ def problematique_APP2():
 
 
     
-    N = 979
-    im_list = images.get_samples(N, random_samples=True)
-    sorted_list = sorted(im_list)
-    #print(sorted_list)
-    images.get_straight_line(img_list=sorted_list, show_graphs=False, show_hist=True)
+    # N = 979
+    # im_list = images.get_samples(N, random_samples=True)
+    # sorted_list = sorted(im_list)
+    # #print(sorted_list)
+    # images.get_straight_line(img_list=sorted_list, show_graphs=False, show_hist=True)
 
     #images.generateRepresentation()
     plt.show()

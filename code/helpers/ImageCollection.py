@@ -33,6 +33,7 @@ from skimage.draw import ellipse_perimeter
 
 import helpers.analysis as an
 from helpers.ClassificationData import ClassificationData
+import helpers.constants as const
 
 
 class ImageCollection:
@@ -124,10 +125,10 @@ class ImageCollection:
         return [n for n in range(idx, idx + N)]
 
 
-    def generateHistogram(self, image, n_bins=256):
+    def generate_histogram(self, image, n_bins=256):
         # Construction des histogrammes
         # 1 histogram per color channel
-        n_channels = 3
+        n_channels = const.N_CLASSES
         pixel_values = np.zeros((n_channels, n_bins))
         for i in range(n_bins):
             for j in range(n_channels):
@@ -141,7 +142,7 @@ class ImageCollection:
         """
         green_col = image[:, :, color_index]
         g = 0
-        for j in range(256):
+        for j in range(const.N_BINS):
             for k in range(256):
                 g += green_col[j, k]
         return g
@@ -162,7 +163,7 @@ class ImageCollection:
             imageHSV = skic.rgb2hsv(imageRGB)
             imageHSV = np.round(imageHSV * (n_bins - 1))
 
-            histvaluesHSV = self.generateHistogram(imageHSV)
+            histvaluesHSV = self.generate_histogram(imageHSV)
 
             # plot imae
             ax[j, 0].imshow(imageRGB)
@@ -205,18 +206,11 @@ class ImageCollection:
             # charge une image si nécessaire
             imageRGB = self.get_RGB_from_indx(i)
             
-            print(f"Started Image {i} : {self.image_list[i]}") 
-            # red_qty.append(self.get_color_quantity(imageRGB, 0))
-            # green_qty.append(self.get_color_quantity(imageRGB, 1))
-            # blue_qty.append(self.get_color_quantity(imageRGB, 2))
+            print(f"Started Image {i} : {self.image_list[i]}")
 
             red_qty.append(self.get_variance(imageRGB, 0))
             green_qty.append(self.get_variance(imageRGB, 1))
             blue_qty.append(self.get_variance(imageRGB, 2))
-
-            # print(f"Variance Red: {self.get_variance(imageRGB, 0)}")
-            # print(f"Variance Green: {self.get_variance(imageRGB, 1)}")
-            # print(f"Variance Blue: {self.get_variance(imageRGB, 2)}")
 
             print(f"Finished Image {i} : {self.image_list[i]}") 
 
@@ -239,52 +233,38 @@ class ImageCollection:
         self.plot_histogram(ax, 'STREET - BLUE', blue_qty[688:979], (2, 2), 'blue')
 
         fig.show()
-    
-
-    def getHuePeak(self, imageHSV):
-        """
-        Retourne le pic de du Hue
-        """
-        histvaluesHSV = self.generateHistogram(imageHSV)
-
-        return histvaluesHSV[0].max()
 
 
     def get_mean_max_values(self, image_hsv, color_index):
         """
         Retourne la moyenne des pics du Hue
         """
-        image_arr = image_hsv[color_index]
-        temp = image_arr
+        color_index_arr = image_hsv[color_index]
 
         arr = []
-        for i in range(256):
-            arr.append([i, image_arr[i]])
-
-        # np.argmax(image_arr, axis=0)
+        for i in range(const.N_BINS):
+            arr.append((i, color_index_arr[i]))
 
         # sort by y value
-        # sorted_arr = np.sort(np.array(arr), axis=0)
-        sorted_arr = sorted(arr, key=lambda x: x[1])
+        sorted_arr = np.array(sorted(arr, key=lambda x: x[1]))
 
-        # imageIndex = np.sort(imageIndex, axis=1)
-        hueVertical = sorted_arr[0]
+        largest_values = sorted_arr[-10:, 0]
 
-        return np.mean(np.array(hueVertical[-10:]))
+        return np.mean(largest_values)
 
 
     def get_hsv_data(self, image):
         imageHSV = skic.rgb2hsv(image)
-        imageHSV = np.round(imageHSV * (256 - 1))
+        imageHSV = np.round(imageHSV * (const.N_BINS - 1))
 
-        histvaluesHSV = self.generateHistogram(imageHSV)
+        histvalues_hsv = self.generate_histogram(imageHSV)
 
-        hue = self.get_mean_max_values(histvaluesHSV, 0)
-        sat = self.get_mean_max_values(histvaluesHSV, 1)
+        hue = self.get_mean_max_values(histvalues_hsv, 0)
+        sat = self.get_mean_max_values(histvalues_hsv, 1)
 
         return hue, sat
 
-    def get_images_feature(self):
+    def get_images_feature(self, view=False):
         """
         Retourne les données des images
         """
@@ -298,7 +278,7 @@ class ImageCollection:
             lines = self.hough_transform_straight_line(skic.rgb2gray(img))
             hor_lines, vert_lines, other_lines, h_parallel_lines, v_parallel_lines = self.categorize_hough_lines(lines)
 
-            image_data = [hue, vert_lines, other_lines]
+            image_data = [other_lines, hue, vert_lines]
 
             if self.labels[i] == ImageCollection.imageLabels.coast:
                 data_coast.append(image_data)
@@ -307,38 +287,35 @@ class ImageCollection:
             elif self.labels[i] == ImageCollection.imageLabels.street:
                 data_street.append(image_data)
 
-        data = [data_coast[:290], data_forest[:290], data_street[:290]]
+        data = [data_coast[:const.CLASSE_SIZE], data_forest[:const.CLASSE_SIZE], data_street[:const.CLASSE_SIZE]]
 
-        fig = plt.figure()
-        ax = fig.subplots(1, 3)
-        # ax = fig.subplots(3, 3)
-        #
-        # for i, d in enumerate([data_coast, data_forest, data_street]):
-        #     ax[0, i].scatter(range(len(d)), [x[0] for x in d], c='red')
-        #     ax[1, i].scatter(range(len(d)), [x[1] for x in d], c='blue')
-        #     ax[2, i].scatter(range(len(d)), [x[2] for x in d], c='green')
-
-        ax[0].scatter(range(len(data_coast)), [x[0] for x in data_coast], c='red')
-        ax[1].scatter(range(len(data_forest)), [x[0] for x in data_forest], c='green')
-        ax[2].scatter(range(len(data_street)), [x[0] for x in data_street], c='blue')
-
-
+        if view:
+            data2view = np.concatenate((data_coast[:const.CLASSE_SIZE], data_forest[:const.CLASSE_SIZE], data_street[:const.CLASSE_SIZE]))
+            targets = np.array([0] * const.CLASSE_SIZE + [1] * const.CLASSE_SIZE + [2] * const.CLASSE_SIZE)
+            an.view3D(data2view, targets, 'Representation (3D projection)', ['Other Lines', 'Hue', 'Vertical Lines'])
 
         return np.array(data)
 
-    def generateRepresentation(self):
-        # produce a ClassificationData object usable by the classifiers
-        # TODO L1.E4.8: commencer l'analyse de la représentation choisie
-        # hsv_data = self.getHSVData()
-        # print(hsv_data.shape)
+    def generate_representation(self):
+        """
+        Génère la représentation des images
+        """
+        features = self.get_images_feature(True)
 
-        features = self.get_images_feature()
         data = ClassificationData(features)
 
-        data.getStats(gen_print=True)
+        # data2 = ClassificationData(an.project_onto_new_basis(data.dataLists, data.vectpr[0]))
+        # data1 = ClassificationData(an.project_onto_new_basis(data.dataLists, data.vectpr[1]))
+        # data3 = ClassificationData(an.project_onto_new_basis(data.dataLists, data.vectpr[2]))
+
+        # data2.getStats(gen_print=True)
         data.getBorders(view=True)
+        # data2.getBorders(view=True)
+        # data1.getBorders(view=True)
+        # data3.getBorders(view=True)
 
         return data
+
 
     def images_display(self, indexes):
         """
@@ -360,8 +337,6 @@ class ImageCollection:
 
 
     def edge_detection(self):
-        # images = [ 'coast_cdmc838.jpg', 'coast_natu804.jpg', 'coast_sun34.jpg' ]
-        # images = ['coast_cdmc838.jpg' ,'coast_natu804.jpg', 'coast_sun34.jpg', 'forest_bost190.jpg', 'forest_for82.jpg', 'forest_land81.jpg', 'forest_land765.jpg', 'forest_land107.jpg', 'forest_nat717.jpg' , 'street_a232022.jpg', 'street_bost77.jpg', 'street_city42.jpg', 'street_par21.jpg', 'street_urb562.jpg', 'street_urban997.jpg']
         images = ['coast_art487.jpg','coast_bea9.jpg','coast_cdmc891.jpg','coast_land253.jpg','coast_land261.jpg','coast_n199065.jpg','coast_n708024.jpg','coast_nat167.jpg']
 
         for img_name in images:
@@ -374,10 +349,10 @@ class ImageCollection:
             fig, ax = plt.subplots(ncols=2,nrows=1, figsize=(10,8), sharex=True, sharey=True)
             ax = ax.ravel()
             fig.tight_layout()
-            #Plot the original image
+            # Plot the original image
             ax[0].imshow(gray_img, cmap=plt.cm.gray)
             ax[0].set_title('Image en noir et blanc')
-            #Plot the Sobel filter applied image
+            # Plot the Sobel filter applied image
             ax[1].imshow(sobel_filtered_img, cmap=plt.cm.gray)
             ax[1].set_title('Image avec filtre de Sobel')
             for a in ax:
@@ -568,9 +543,9 @@ class ImageCollection:
             imageHSVhist = np.round(imageHSV * (n_bins - 1))  # HSV has all values between 0 and 100
 
             # Construction des histogrammes
-            histvaluesRGB = self.generateHistogram(imageRGB)
-            histtvaluesLab = self.generateHistogram(imageLabhist)
-            histvaluesHSV = self.generateHistogram(imageHSVhist)
+            histvaluesRGB = self.generate_histogram(imageRGB)
+            histtvaluesLab = self.generate_histogram(imageLabhist)
+            histvaluesHSV = self.generate_histogram(imageHSVhist)
 
             # permet d'omettre les bins très sombres et très saturées aux bouts des histogrammes
             skip = 5

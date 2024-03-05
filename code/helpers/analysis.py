@@ -261,17 +261,10 @@ def project_onto_new_basis(data, basis):
     assert dims[-1] == len(basis)
     projected = np.zeros(np.asarray(data).shape)
 
-    # projected = np.dot(data, basis)
-    # projected = np.matmul(data, basis)
-    #print(projected)
     for i in range(dims[0]):  # dims[0] = n_classes
         tempdata = data[i]
-        # TODO Labo L1.E2.5 Remplacer l'opération bidon par la bonne projection ici
-        # projected[i] = ??
-        projected[i] = np.matmul(tempdata, basis)
         projected[i] = np.matmul(tempdata, basis)
 
-    # print(f'Projected data: {projected}')     
     return projected
 
 
