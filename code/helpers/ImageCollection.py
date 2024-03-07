@@ -250,7 +250,7 @@ class ImageCollection:
 
         largest_values = sorted_arr[-10:, 0]
 
-        return np.mean(largest_values)
+        return np.mean(largest_values) 
 
 
     def get_hsv_data(self, image):
@@ -278,7 +278,9 @@ class ImageCollection:
             lines = self.hough_transform_straight_line(skic.rgb2gray(img))
             hor_lines, vert_lines, other_lines, h_parallel_lines, v_parallel_lines = self.categorize_hough_lines(lines)
 
-            image_data = [other_lines, hue, vert_lines]
+            n_lines = hor_lines + vert_lines + other_lines
+            n_lines = 1 if n_lines == 0 else n_lines
+            image_data = [hue * 1000 / const.N_BINS - 1, other_lines * 1000 / n_lines, vert_lines * 1000 / n_lines]
 
             if self.labels[i] == ImageCollection.imageLabels.coast:
                 data_coast.append(image_data)
@@ -458,7 +460,7 @@ class ImageCollection:
         plt.suptitle(title)
         plt.tight_layout()
 
-    def categorize_hough_lines(self, lines, tolerance = 3):
+    def categorize_hough_lines(self, lines, tolerance=3):
         """
         Returns the number of horizontal lines, vertical lines and other lines
         Return format [No Horz, No Vert, No Other]

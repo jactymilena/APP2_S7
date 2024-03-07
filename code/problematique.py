@@ -5,7 +5,6 @@ Problématique APP2 Module IA S8
 
 import matplotlib.pyplot as plt
 
-import os
 
 from helpers.ImageCollection import ImageCollection
 import helpers.classifiers as classifiers
@@ -17,10 +16,6 @@ import keras as K
 def problematique_APP2():
     images = ImageCollection(True)
     data = images.generate_representation()
-    # os.system("cls")
-    # N = 6
-    # im_list_forest = images.get_samples(N, random_samples=True, labels=ImageCollection.imageLabels.coast)
-    # images.generateHSVHistograms(im_list_forest)
 
     if True:
         n_neurons = 10
@@ -35,13 +30,11 @@ def problematique_APP2():
                                           ndonnees_random=5000, gen_output=True, view=True)
 
     if True:
-        ppv1 = classifiers.PPVClassify_APP2(data2train=data, data2test=data, n_neighbors=1,
-                                            experiment_title='1-PPV avec données orig comme représentants',
-                                            gen_output=True, view=True)
 
-        ppv5 = classifiers.PPVClassify_APP2(data2train=data, data2test=data, n_neighbors=5,
-                                            experiment_title='5-PPV avec données orig comme représentants',
-                                            gen_output=True, view=True)
+        ppv1km1 = classifiers.PPVClassify_APP2(data2train=data, data2test=data, n_neighbors=3,
+                                               experiment_title='5-PPV sur le 1-moy',
+                                               useKmean=True, n_representants=17,
+                                               gen_output=True, view=True)
 
     if True:
         apriori = [1/3, 1/3, 1/3]
@@ -52,15 +45,6 @@ def problematique_APP2():
                                              experiment_title='probabilités gaussiennes',
                                              gen_output=True, view=True)
 
-
-    
-    # N = 979
-    # im_list = images.get_samples(N, random_samples=True)
-    # sorted_list = sorted(im_list)
-    # #print(sorted_list)
-    # images.get_straight_line(img_list=sorted_list, show_graphs=False, show_hist=True)
-
-    #images.generateRepresentation()
     plt.show()
 
 
