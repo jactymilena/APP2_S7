@@ -19,10 +19,10 @@ def problematique_APP2():
 
     if True:
         n_neurons = 10
-        n_layers = 7
+        n_layers = 8
         nn1 = classifiers.NNClassify_APP2(data2train=data, data2test=data,
                                           n_layers=n_layers, n_neurons=n_neurons, innerActivation='tanh',
-                                          outputActivation='softmax', optimizer=Adam(learning_rate=0.0004), loss='binary_crossentropy',
+                                          outputActivation='softmax', optimizer=Adam(learning_rate=0.0004), loss='categorical_crossentropy',
                                           callback_list=[K.callbacks.EarlyStopping(monitor='val_loss', patience=10)],
                                           metrics=['accuracy'],
                                           experiment_title='NN Simple',
@@ -30,8 +30,7 @@ def problematique_APP2():
                                           ndonnees_random=5000, gen_output=True, view=True)
 
     if True:
-
-        ppv1km1 = classifiers.PPVClassify_APP2(data2train=data, data2test=data, n_neighbors=3,
+        ppv1km1 = classifiers.PPVClassify_APP2(data2train=data, data2test=data, n_neighbors=5,
                                                experiment_title='5-PPV sur le 1-moy',
                                                useKmean=True, n_representants=17,
                                                gen_output=True, view=True)

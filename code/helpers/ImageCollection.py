@@ -263,24 +263,18 @@ class ImageCollection:
         sat = self.get_mean_max_values(histvalues_hsv, 1)
 
         return hue, sat
+    
 
-    def get_images_feature(self, view=False):
+    def classify_images(self, hue, other_lines, vert_lines):
         """
-        Retourne les données des images
+        Classifie les images
         """
         data_coast = []
         data_forest = []
         data_street = []
 
-        for i, img in enumerate(self.images):
-
-            hue, sat = self.get_hsv_data(img)
-            lines = self.hough_transform_straight_line(skic.rgb2gray(img))
-            hor_lines, vert_lines, other_lines, h_parallel_lines, v_parallel_lines = self.categorize_hough_lines(lines)
-
-            n_lines = hor_lines + vert_lines + other_lines
-            n_lines = 1 if n_lines == 0 else n_lines
-            image_data = [hue * 1000 / const.N_BINS - 1, other_lines * 1000 / n_lines, vert_lines * 1000 / n_lines]
+        for i in range(len(self.images)):
+            image_data = [hue[i], other_lines[i], vert_lines[i]]
 
             if self.labels[i] == ImageCollection.imageLabels.coast:
                 data_coast.append(image_data)
@@ -289,32 +283,51 @@ class ImageCollection:
             elif self.labels[i] == ImageCollection.imageLabels.street:
                 data_street.append(image_data)
 
+
+        return data_coast, data_forest, data_street
+
+
+    def get_images_features(self, view=False):
+        """
+        Retourne les données des images
+        """
+        hue_arr = []
+        vert_lines_arr = []
+        other_lines_arr = []
+
+        for img in self.images:
+            hue, sat = self.get_hsv_data(img)
+            lines = self.hough_transform_straight_line(skic.rgb2gray(img))
+            hor_lines, vert_lines, other_lines, h_parallel_lines, v_parallel_lines = self.categorize_hough_lines(lines)
+
+            hue_arr.append(hue)
+            vert_lines_arr.append(vert_lines)
+            other_lines_arr.append(other_lines)
+        
+        hue_arr_norm, minmax = an.scaleData(hue_arr)
+        vert_lines_arr_norm, minmax = an.scaleData(vert_lines_arr)
+        other_lines_arr_norm, minmax = an.scaleData(other_lines_arr)
+
+        data_coast, data_forest, data_street = self.classify_images(hue_arr_norm, other_lines_arr_norm, vert_lines_arr_norm)
+
         data = [data_coast[:const.CLASSE_SIZE], data_forest[:const.CLASSE_SIZE], data_street[:const.CLASSE_SIZE]]
 
         if view:
             data2view = np.concatenate((data_coast[:const.CLASSE_SIZE], data_forest[:const.CLASSE_SIZE], data_street[:const.CLASSE_SIZE]))
             targets = np.array([0] * const.CLASSE_SIZE + [1] * const.CLASSE_SIZE + [2] * const.CLASSE_SIZE)
-            an.view3D(data2view, targets, 'Representation (3D projection)', ['Other Lines', 'Hue', 'Vertical Lines'])
+            an.view3D(data2view, targets, 'Representation (3D projection)', ['Hue', 'Other Lines', 'Vertical Lines'])
 
         return np.array(data)
+
 
     def generate_representation(self):
         """
         Génère la représentation des images
         """
-        features = self.get_images_feature(True)
+        features = self.get_images_features(True)
 
         data = ClassificationData(features)
-
-        # data2 = ClassificationData(an.project_onto_new_basis(data.dataLists, data.vectpr[0]))
-        # data1 = ClassificationData(an.project_onto_new_basis(data.dataLists, data.vectpr[1]))
-        # data3 = ClassificationData(an.project_onto_new_basis(data.dataLists, data.vectpr[2]))
-
-        # data2.getStats(gen_print=True)
         data.getBorders(view=True)
-        # data2.getBorders(view=True)
-        # data1.getBorders(view=True)
-        # data3.getBorders(view=True)
 
         return data
 
@@ -360,6 +373,7 @@ class ImageCollection:
             for a in ax:
                 a.axis('off')
 
+
     def hough_transform_straight_line(self, gray_img, ax=None):
         """
         gray_img : grayscale image
@@ -387,6 +401,7 @@ class ImageCollection:
             plt.tight_layout()
         return lines
         
+
     def get_straight_line(self, img_list=None, show_graphs=False, show_hist=False):
         my_images = []
         counter = 0
@@ -395,11 +410,11 @@ class ImageCollection:
             for img_name in default_images:
                 print(f"{img_name}")
                 my_images.append(skiio.imread(self.image_folder + os.sep + img_name))
-                counter = counter + 1
+                counter += 1
         else:
             for i in img_list:
                 my_images.append(self.get_RGB_from_indx(i))
-                counter = counter + 1
+                counter += 1
 
         counted_lines = []
         for i in range(counter):
