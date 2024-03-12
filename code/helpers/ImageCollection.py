@@ -307,7 +307,7 @@ class ImageCollection:
         vert_lines_arr_norm, minmax = an.scaleData(vert_lines_arr)
         other_lines_arr_norm, minmax = an.scaleData(other_lines_arr)
 
-        data_coast, data_forest, data_street = self.classify_images(hue_arr_norm, other_lines_arr_norm, vert_lines_arr_norm)
+        data_coast, data_forest, data_street = self.classify_images( other_lines_arr_norm, vert_lines_arr_norm, hue_arr_norm)
 
         data = [data_coast[:const.CLASSE_SIZE], data_forest[:const.CLASSE_SIZE], data_street[:const.CLASSE_SIZE]]
 
