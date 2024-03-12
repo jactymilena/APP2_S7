@@ -157,14 +157,20 @@ class BayesClassifier:
         """
         testDataNSamples, testDataDimensions = np.asarray(testdata1array).shape
         assert testDataDimensions == self.representationDimensions
-        classProbDensities = []
+        classProbDensities = np.zeros((testDataNSamples, self.n_classes))
+
         # calcule la valeur de la probabilité d'appartenance à chaque classe pour les données à tester
         for i in range(self.n_classes):  # itère sur toutes les classes
-            classProbDensities.append(self.densities[i].computeProbability(testdata1array))
-        # reshape pour que les lignes soient les calculs pour 1 point original, i.e. même disposition que l'array d'entrée
-        classProbDensities = np.array(classProbDensities).T
-        # TODO problematique: take apriori and cost into consideration! here for risk computation argmax assumes equal costs and apriori
-        predictions = np.argmax(classProbDensities, axis=1).reshape(testDataNSamples, 1)
+            probDensity = self.densities[i].computeProbability(testdata1array)
+            classProbDensities[:, i] = probDensity * self.apriori[i]
+
+        risks = np.zeros_like(classProbDensities)
+        for i in range(self.n_classes):
+            for j in range(self.n_classes):
+                risks[:, i] += classProbDensities[:, j] * self.costs[i][j]
+
+        predictions = np.argmin(risks, axis=1).reshape(testDataNSamples, 1)
+
         if np.asarray(expected_labels1array).any():
             errors_indexes = an.calc_erreur_classification(expected_labels1array, predictions, gen_output)
         else:

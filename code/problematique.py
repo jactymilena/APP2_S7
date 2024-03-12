@@ -38,7 +38,6 @@ def problematique_APP2():
     if True:
         apriori = [1/3, 1/3, 1/3]
         cost = [[0, 1, 1], [1, 0, 1], [1, 1, 0]]
-        # Bayes gaussien les apriori et coûts ne sont pas considérés pour l'instant
         bg1 = classifiers.BayesClassify_APP2(data2train=data, data2test=data,
                                              apriori=apriori, costs=cost,
                                              experiment_title='probabilités gaussiennes',
