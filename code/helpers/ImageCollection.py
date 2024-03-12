@@ -274,7 +274,7 @@ class ImageCollection:
         data_street = []
 
         for i in range(len(self.images)):
-            image_data = [hue[i], other_lines[i], vert_lines[i]]
+            image_data = [other_lines[i], vert_lines[i], hue[i]]
 
             if self.labels[i] == ImageCollection.imageLabels.coast:
                 data_coast.append(image_data)
@@ -282,7 +282,6 @@ class ImageCollection:
                 data_forest.append(image_data)
             elif self.labels[i] == ImageCollection.imageLabels.street:
                 data_street.append(image_data)
-
 
         return data_coast, data_forest, data_street
 
@@ -315,7 +314,7 @@ class ImageCollection:
         if view:
             data2view = np.concatenate((data_coast[:const.CLASSE_SIZE], data_forest[:const.CLASSE_SIZE], data_street[:const.CLASSE_SIZE]))
             targets = np.array([0] * const.CLASSE_SIZE + [1] * const.CLASSE_SIZE + [2] * const.CLASSE_SIZE)
-            an.view3D(data2view, targets, 'Representation (3D projection)', ['Hue', 'Other Lines', 'Vertical Lines'])
+            an.view3D(data2view, targets, 'Representation (3D projection)', ['Other Lines', 'Vertical Lines', 'Hue'])
 
         return np.array(data)
 

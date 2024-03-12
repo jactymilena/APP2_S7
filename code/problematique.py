@@ -18,12 +18,12 @@ def problematique_APP2():
     data = images.generate_representation()
 
     if True:
+        # 10, 9
         n_neurons = 10
-        n_layers = 8
+        n_layers = 9
         nn1 = classifiers.NNClassify_APP2(data2train=data, data2test=data,
                                           n_layers=n_layers, n_neurons=n_neurons, innerActivation='tanh',
-                                          outputActivation='softmax', optimizer=Adam(learning_rate=0.0004), loss='categorical_crossentropy',
-                                          callback_list=[K.callbacks.EarlyStopping(monitor='val_loss', patience=10)],
+                                          outputActivation='softmax', optimizer=Adam(learning_rate=0.0002), loss='categorical_crossentropy',
                                           metrics=['accuracy'],
                                           experiment_title='NN Simple',
                                           n_epochs=1500, savename='3classes',
@@ -31,7 +31,7 @@ def problematique_APP2():
 
     if True:
         ppv1km1 = classifiers.PPVClassify_APP2(data2train=data, data2test=data, n_neighbors=5,
-                                               experiment_title='5-PPV sur le 1-moy',
+                                               experiment_title='5-PPV sur le 17-moy',
                                                useKmean=True, n_representants=17,
                                                gen_output=True, view=True)
 
