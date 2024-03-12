@@ -169,6 +169,7 @@ class BayesClassifier:
             for j in range(self.n_classes):
                 risks[:, i] += classProbDensities[:, j] * self.costs[i][j]
 
+        # on veut minimiser l'erreur
         predictions = np.argmin(risks, axis=1).reshape(testDataNSamples, 1)
 
         if np.asarray(expected_labels1array).any():

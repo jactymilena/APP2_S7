@@ -37,12 +37,21 @@ def problematique_APP2():
 
     if True:
         apriori = [1/3, 1/3, 1/3]
+        # le cout permet d'ajuster les coûts d'une classe à l'autres 
+        # ex: si la prédiction de la ville au lieu de la plage est plus coûteuse on pourrait augmenter 
         cost = [[0, 1, 1], [1, 0, 1], [1, 1, 0]]
         bg1 = classifiers.BayesClassify_APP2(data2train=data, data2test=data,
                                              apriori=apriori, costs=cost,
                                              experiment_title='probabilités gaussiennes',
                                              gen_output=True, view=True)
-
+    if False:
+        # exemple pas optimal 
+        apriori = [1/3, 1/3, 1/3]
+        cost = [[0, 1, 2], [1, 0, 1], [2, 1, 0]]
+        bg2 = classifiers.BayesClassify_APP2(data2train=data, data2test=data,
+                                                apriori=apriori, costs=cost,
+                                                experiment_title='probabilités gaussiennes',
+                                                gen_output=True, view=True)    
     plt.show()
 
 
