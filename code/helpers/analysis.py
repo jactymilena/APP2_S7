@@ -88,7 +88,7 @@ class Extent:
         return np.array(list(itertools.product([self.xmin, self.xmax], [self.ymin, self.ymax])))
 
 
-def calc_erreur_classification(original_data, classified_data, gen_output=False):
+def calc_erreur_classification(original_data, classified_data, image_names, gen_output=False):
     """
     Retourne l'index des éléments différents entre deux vecteurs
     Affiche l'erreur moyenne et la matrice de confusion
@@ -100,6 +100,10 @@ def calc_erreur_classification(original_data, classified_data, gen_output=False)
         print(f'\n\n{len(indexes)} erreurs de classification sur {len(original_data)} données (= {len(indexes)/len(original_data)*100} %)')
         print('Confusion:\n')
         print(confusion_matrix(original_data, classified_data))
+
+    # for i in indexes:
+    #     print(f'Erreur de classification: {image_names[i]}')
+
     return indexes
 
 

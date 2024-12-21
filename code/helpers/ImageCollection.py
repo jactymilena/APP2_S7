@@ -61,20 +61,15 @@ class ImageCollection:
         # Dimensions [980, 256, 256, 3]
         #            [Nombre image, hauteur, largeur, RGB]
         if load_all:
-            # self.images = np.array([np.array(skiio.imread(image)) for image in self._path])
-            # self.all_images_loaded = True
             self.load_all_images()
 
         self.labels = []
         for i in image_list:
             if 'coast' in i:
-                # print(f"coast {j}")
                 self.labels.append(ImageCollection.imageLabels.coast)
             elif 'forest' in i:
-                # print(f"forest {j}")
                 self.labels.append(ImageCollection.imageLabels.forest)
             elif 'street' in i:
-                # print(f"street {j}")
                 self.labels.append(ImageCollection.imageLabels.street)
             else:
                 raise ValueError(i)
@@ -87,6 +82,7 @@ class ImageCollection:
         self.images = np.array([np.array(skiio.imread(image)) for image in self._path])
         self.all_images_loaded = True
     
+
     def get_images(self, idx0, idx1):
         """
         Charge images dans la liste de idx0 à idx1
@@ -98,9 +94,6 @@ class ImageCollection:
         coast_images = self.get_images(0, 0 + N)
         forest_images = self.get_images(360, 360 + N)
         street_images = self.get_images(688, 688 + N)
-
-        # for images in [coast_images, forest_images, street_images]:
-        #     self.images.append(images)
 
         self.images = np.concatenate((coast_images, forest_images, street_images))
 
@@ -303,11 +296,12 @@ class ImageCollection:
             vert_lines_arr.append(vert_lines)
             other_lines_arr.append(other_lines)
         
+        # Normalisation des données
         hue_arr_norm, minmax = an.scaleData(hue_arr)
         vert_lines_arr_norm, minmax = an.scaleData(vert_lines_arr)
         other_lines_arr_norm, minmax = an.scaleData(other_lines_arr)
 
-        data_coast, data_forest, data_street = self.classify_images( other_lines_arr_norm, vert_lines_arr_norm, hue_arr_norm)
+        data_coast, data_forest, data_street = self.classify_images(hue_arr_norm, other_lines_arr_norm, vert_lines_arr_norm)
 
         data = [data_coast[:const.CLASSE_SIZE], data_forest[:const.CLASSE_SIZE], data_street[:const.CLASSE_SIZE]]
 

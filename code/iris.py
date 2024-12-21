@@ -112,7 +112,7 @@ def main():
     training_target = target
     validation_target = []
     training_data, validation_data, training_target, validation_target = ttsplit(data, target, test_size=0.1)
-
+    
     # Create neural network
     # TODO L2.E3.3  Tune the number and size of hidden layers
     model = Sequential()
